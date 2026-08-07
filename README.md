@@ -1,14 +1,16 @@
-# Welcome to your Lovable project
+# Aurora Agent
+
+implument the full funcanality and improve the desing also . when we click the notification thats not appearing . means overlaping the notification needs to appeare . fix that also . make the desing more attreative and effects its an desing for the advence voice autonomously working ocherstater agent . similar to teh jarvis or friday also .
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f5d3c3b7-11f8-45dc-abc9-4650f95d7682).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +22,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
