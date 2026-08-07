@@ -178,8 +178,8 @@ function useJarvisState() {
         id: uid(),
         title,
         desc: desc || "Autonomously planned by the orchestrator core.",
-        icon: missionIcons[Math.floor(Math.random() * missionIcons.length)],
-        accent: missionAccents[Math.floor(Math.random() * missionAccents.length)],
+        icon: missionIcons[Math.floor(Math.random() * missionIcons.length)] ?? "🎯",
+        accent: missionAccents[Math.floor(Math.random() * missionAccents.length)] ?? "var(--cyan-hud)",
         status: "progress",
         progress: 0,
         createdAt: Date.now(),
@@ -237,7 +237,7 @@ function useJarvisState() {
         reply = `${running.length} agents online: ${running.map((a) => a.name).join(", ")}.`;
       } else if (/mission|task/.test(text)) {
         const active = missions.filter((m) => m.status === "progress");
-        reply = active.length
+        reply = active[0]
           ? `${active.length} missions in flight. Leading: “${active[0].title}” at ${Math.round(active[0].progress)}%.`
           : "No missions are currently in flight. Say the word and I'll dispatch one.";
       } else if (/stop listening|sleep|standby/.test(text)) {
