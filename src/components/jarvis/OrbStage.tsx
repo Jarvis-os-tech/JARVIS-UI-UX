@@ -106,8 +106,9 @@ export function OrbStage() {
           ))}
         </span>
         <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {listening ? "Listening" : thinking ? "Reasoning" : "Standing by"}
+          {listening ? "Listening" : thinking ? "Reasoning" : speaking ? "Speaking" : "Standing by"}
         </span>
+
       </div>
     </div>
   );
