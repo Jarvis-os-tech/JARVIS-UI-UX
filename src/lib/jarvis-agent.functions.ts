@@ -55,14 +55,27 @@ export const askJarvis = createServerFn({ method: "POST" })
 
     const result = streamText({
       model: gateway("google/gemini-3.6-flash"),
-      system: `${SYSTEM}\n\nLIVE SYSTEM SNAPSHOT:\n${data.context}`,
+      system: `${SYSTEM}
+
+LIVE SYSTEM SNAPSHOT:
+${data.context}
+
+Respond with raw JSON only (no code fences) shaped exactly like:
+{"reply":"...","action":"none","target":""}`,
       messages: data.messages.map((m) => ({
         role: m.role,
         content: m.text,
       })),
-      output: Output.object({ schema: Reply }),
     });
 
-    const output = await result.output;
-    return output;
+    const raw = (await result.text).trim();
+    const json = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+
+    try {
+      const parsed = Reply.parse(JSON.parse(json.slice(json.indexOf("{"), json.lastIndexOf("}") + 1)));
+      return parsed;
+    } catch {
+      return { reply: raw || "Understood.", action: "none" as const, target: "" };
+    }
   });
+
