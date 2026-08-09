@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Send, Sparkle, Trash2 } from "lucide-react";
-import { useJarvis } from "./JarvisProvider";
+import { Mic, Send, Sparkle, Square, Trash2 } from "lucide-react";
+import { useJarvis, useMounted } from "./JarvisProvider";
 import { clock } from "@/lib/jarvis-data";
 import { cn } from "@/lib/utils";
 
@@ -12,9 +12,21 @@ const quick = [
 ];
 
 export function Conversation() {
-  const { messages, sendMessage, clearChat, thinking, listening, toggleListening } = useJarvis();
+  const {
+    messages,
+    sendMessage,
+    clearChat,
+    thinking,
+    listening,
+    toggleListening,
+    speaking,
+    stopSpeaking,
+    interim,
+  } = useJarvis();
   const [value, setValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const mounted = useMounted();
+
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
