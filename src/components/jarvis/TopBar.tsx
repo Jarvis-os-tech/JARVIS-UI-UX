@@ -1,5 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, Mic, MicOff, Settings2, Volume2, VolumeX, X } from "lucide-react";
+import { Bell, Mic, MicOff, Radar, Settings2, Volume2, VolumeX, X } from "lucide-react";
+
 import { useJarvis, useNow } from "./JarvisProvider";
 import { timeAgo } from "@/lib/jarvis-data";
 import { cn } from "@/lib/utils";
