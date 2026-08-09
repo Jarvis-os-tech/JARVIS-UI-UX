@@ -38,8 +38,24 @@ function Row({
 }
 
 export function SettingsView() {
-  const { speechOn, setSpeechOn, wakeWord, setWakeWord, autonomy, setAutonomy, cpu, ram, net } =
-    useJarvis();
+  const {
+    speechOn,
+    setSpeechOn,
+    wakeWord,
+    setWakeWord,
+    autonomy,
+    setAutonomy,
+    cpu,
+    ram,
+    net,
+    voices,
+    voiceName,
+    setVoiceName,
+    voiceRate,
+    setVoiceRate,
+    speak,
+    micSupported,
+  } = useJarvis();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -59,10 +75,59 @@ export function SettingsView() {
         />
         <Row
           title="Wake word"
-          desc="Listen continuously for “Jarvis” in the background."
+          desc={
+            micSupported
+              ? "Listen continuously for “Jarvis” in the background."
+              : "Voice capture isn't supported in this browser."
+          }
           on={wakeWord}
           onToggle={() => setWakeWord(!wakeWord)}
         />
+
+        <div className="glass-soft rounded-xl p-4">
+          <p className="text-[13.5px] font-bold">Neural voice</p>
+          <p className="mt-0.5 text-[11.5px] text-muted-foreground">
+            Choose the synthesised voice JARVIS speaks with.
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <select
+              value={voiceName}
+              onChange={(e) => setVoiceName(e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-border bg-foreground/5 px-3 py-2 text-[12.5px] outline-none focus:border-cyan-hud/60"
+            >
+              {voices.length === 0 && <option value="">No voices detected</option>}
+              {voices.map((v) => (
+                <option key={v.name} value={v.name}>
+                  {v.name} · {v.lang}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => speak("All systems nominal. I am ready when you are.")}
+              className="shrink-0 rounded-lg border border-cyan-hud/35 bg-cyan-hud/10 px-4 py-2 text-[12px] font-bold text-cyan-hud transition-colors hover:bg-cyan-hud/20"
+            >
+              Test voice
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-baseline justify-between">
+            <p className="text-[12px] text-muted-foreground">Speaking rate</p>
+            <span className="font-mono text-sm font-bold text-cyan-hud">{voiceRate.toFixed(2)}x</span>
+          </div>
+          <input
+            type="range"
+            min={0.6}
+            max={1.6}
+            step={0.02}
+            value={voiceRate}
+            onChange={(e) => setVoiceRate(Number(e.target.value))}
+            className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-foreground/10 accent-cyan-hud"
+            style={{
+              background: `linear-gradient(90deg, var(--cyan-hud) ${((voiceRate - 0.6) / 1) * 100}%, oklch(1 0 0 / 10%) ${((voiceRate - 0.6) / 1) * 100}%)`,
+            }}
+          />
+        </div>
+
 
         <div className="glass-soft rounded-xl p-4">
           <div className="flex items-baseline justify-between">

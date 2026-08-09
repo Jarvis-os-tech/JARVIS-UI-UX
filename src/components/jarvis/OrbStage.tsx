@@ -1,8 +1,9 @@
 import { useJarvis } from "./JarvisProvider";
 
 export function OrbStage() {
-  const { listening, thinking, cpu } = useJarvis();
-  const active = listening || thinking;
+  const { listening, thinking, speaking, cpu } = useJarvis();
+  const active = listening || thinking || speaking;
+
 
   return (
     <div className="relative grid min-h-0 flex-1 place-items-center py-2">
@@ -105,8 +106,9 @@ export function OrbStage() {
           ))}
         </span>
         <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {listening ? "Listening" : thinking ? "Reasoning" : "Standing by"}
+          {listening ? "Listening" : thinking ? "Reasoning" : speaking ? "Speaking" : "Standing by"}
         </span>
+
       </div>
     </div>
   );

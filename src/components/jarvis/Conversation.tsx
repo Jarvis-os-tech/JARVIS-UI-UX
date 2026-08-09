@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Send, Sparkle, Trash2 } from "lucide-react";
-import { useJarvis } from "./JarvisProvider";
+import { Mic, Send, Sparkle, Square, Trash2 } from "lucide-react";
+import { useJarvis, useMounted } from "./JarvisProvider";
 import { clock } from "@/lib/jarvis-data";
 import { cn } from "@/lib/utils";
 
@@ -12,9 +12,21 @@ const quick = [
 ];
 
 export function Conversation() {
-  const { messages, sendMessage, clearChat, thinking, listening, toggleListening } = useJarvis();
+  const {
+    messages,
+    sendMessage,
+    clearChat,
+    thinking,
+    listening,
+    toggleListening,
+    speaking,
+    stopSpeaking,
+    interim,
+  } = useJarvis();
   const [value, setValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const mounted = useMounted();
+
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -69,7 +81,10 @@ export function Conversation() {
                 >
                   {m.role === "jarvis" ? "JARVIS" : "You"}
                 </span>
-                <span className="font-mono text-[10px] text-muted-foreground">{clock(m.at)}</span>
+                <span className="font-mono text-[10px] text-muted-foreground">
+                  {mounted ? clock(m.at) : ""}
+                </span>
+
               </div>
               <p
                 className={cn(
@@ -97,10 +112,23 @@ export function Conversation() {
             reasoning…
           </div>
         )}
+        {interim && (
+          <p className="pl-10 text-[13px] italic text-muted-foreground/70">“{interim}”</p>
+        )}
         <div ref={endRef} />
       </div>
 
+      {speaking && (
+        <button
+          onClick={stopSpeaking}
+          className="mx-4 mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-hud/40 bg-amber-hud/10 py-1.5 text-[11px] font-bold text-amber-hud transition-colors hover:bg-amber-hud/20"
+        >
+          <Square className="h-3 w-3" /> Stop speaking
+        </button>
+      )}
+
       <div className="flex flex-wrap gap-2 px-4 pb-2">
+
         {quick.map((q) => (
           <button
             key={q}
