@@ -112,10 +112,23 @@ export function Conversation() {
             reasoning…
           </div>
         )}
+        {interim && (
+          <p className="pl-10 text-[13px] italic text-muted-foreground/70">“{interim}”</p>
+        )}
         <div ref={endRef} />
       </div>
 
+      {speaking && (
+        <button
+          onClick={stopSpeaking}
+          className="mx-4 mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-hud/40 bg-amber-hud/10 py-1.5 text-[11px] font-bold text-amber-hud transition-colors hover:bg-amber-hud/20"
+        >
+          <Square className="h-3 w-3" /> Stop speaking
+        </button>
+      )}
+
       <div className="flex flex-wrap gap-2 px-4 pb-2">
+
         {quick.map((q) => (
           <button
             key={q}
