@@ -81,7 +81,10 @@ export function Conversation() {
                 >
                   {m.role === "jarvis" ? "JARVIS" : "You"}
                 </span>
-                <span className="font-mono text-[10px] text-muted-foreground">{clock(m.at)}</span>
+                <span className="font-mono text-[10px] text-muted-foreground">
+                  {mounted ? clock(m.at) : ""}
+                </span>
+
               </div>
               <p
                 className={cn(
