@@ -28,11 +28,15 @@ export function TopBar() {
     net,
     listening,
     toggleListening,
+    speaking,
+    wakeWord,
+    setWakeWord,
     speechOn,
     setSpeechOn,
     setView,
   } = useJarvis();
   const now = useNow();
+
 
   return (
     <header className="glass relative z-50 flex h-16 items-center justify-between gap-4 rounded-2xl px-4 sm:px-6">
