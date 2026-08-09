@@ -97,12 +97,32 @@ export function TopBar() {
         </button>
 
         <button
+          onClick={() => setWakeWord(!wakeWord)}
+          aria-label="Toggle wake word"
+          title={wakeWord ? "Wake word armed — say “Jarvis”" : "Arm wake word"}
+          className={cn(
+            "grid h-9 w-9 place-items-center rounded-xl border transition-all",
+            wakeWord
+              ? "border-violet-hud/60 bg-violet-hud/15 text-violet-hud"
+              : "border-border bg-foreground/5 text-muted-foreground hover:border-cyan-hud/50 hover:text-cyan-hud",
+          )}
+        >
+          <Radar className={cn("h-4 w-4", wakeWord && "animate-spin-slower")} />
+        </button>
+
+        <button
           onClick={() => setSpeechOn(!speechOn)}
           aria-label="Toggle voice output"
-          className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-foreground/5 text-muted-foreground transition-all hover:border-cyan-hud/50 hover:text-cyan-hud"
+          className={cn(
+            "grid h-9 w-9 place-items-center rounded-xl border transition-all",
+            speaking
+              ? "border-cyan-hud/60 bg-cyan-hud/15 text-cyan-hud glow-ring"
+              : "border-border bg-foreground/5 text-muted-foreground hover:border-cyan-hud/50 hover:text-cyan-hud",
+          )}
         >
           {speechOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
         </button>
+
 
         <Popover onOpenChange={(o) => o && markAllRead()}>
           <PopoverTrigger asChild>
