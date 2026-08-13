@@ -37,7 +37,7 @@ function Shell() {
       <TopBar />
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
         <Sidebar />
-        <main className="glass scan-line flex min-h-0 flex-1 flex-col rounded-2xl p-4 sm:p-5">
+        <main className="glass flex min-h-0 flex-1 flex-col rounded-2xl p-4 sm:p-5">
           <Views />
         </main>
         <MissionRail />

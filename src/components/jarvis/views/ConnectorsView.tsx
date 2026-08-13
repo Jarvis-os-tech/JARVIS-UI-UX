@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plug } from "lucide-react";
 import { useJarvis } from "../JarvisProvider";
+import { Toggle } from "../Toggle";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ const seed = [
 export function ConnectorsView() {
   const [items, setItems] = useState(seed);
   const { pushLog, pushNotification } = useJarvis();
+  const online = items.filter((i) => i.on).length;
 
   const toggle = (id: string) => {
     setItems((prev) =>
@@ -34,43 +36,52 @@ export function ConnectorsView() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="mb-4">
-        <h1 className="font-display text-2xl font-bold tracking-wide">MCPs &amp; Connectors</h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Every tool the swarm can reach. Toggle a connector to grant or revoke autonomous access.
-        </p>
+      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display etched text-2xl font-bold tracking-wide">MCPs &amp; Connectors</h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Every tool the swarm can reach — {online} of {items.length} ports live.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setItems((prev) => prev.map((i) => ({ ...i, on: true })));
+            pushLog("All connector ports opened.");
+            toast.success("All connectors online");
+          }}
+          className="key rounded-xl px-3.5 py-2 text-[12px] font-bold text-cyan-hud"
+        >
+          Connect all
+        </button>
       </header>
 
-      <div className="grid min-h-0 flex-1 auto-rows-min grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-3 overflow-y-auto pb-4">
+      <div className="grid min-h-0 flex-1 auto-rows-min grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-3.5 overflow-y-auto pb-4 pr-1">
         {items.map((i) => (
-          <article key={i.id} className="glass-soft animate-rise-in rounded-2xl p-4">
+          <article key={i.id} className="neu gloss animate-rise-in rounded-2xl p-4">
             <div className="flex items-start justify-between gap-3">
               <span
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
-                style={{ background: `color-mix(in oklab, ${i.c} 15%, transparent)`, color: i.c }}
+                className="neu-inset grid h-11 w-11 shrink-0 place-items-center rounded-xl"
+                style={{ color: i.c }}
               >
-                <Plug className="h-4 w-4" />
+                <Plug className="h-4.5 w-4.5" />
               </span>
-              <button
-                onClick={() => toggle(i.id)}
-                aria-label={`Toggle ${i.n}`}
-                className={cn(
-                  "relative h-6 w-11 shrink-0 rounded-full border transition-colors",
-                  i.on ? "border-cyan-hud/50 bg-cyan-hud/25" : "border-border bg-foreground/8",
-                )}
-              >
-                <span
-                  className={cn(
-                    "absolute top-0.5 h-4.5 w-4.5 rounded-full transition-all",
-                    i.on ? "left-[1.4rem] bg-cyan-hud shadow-[0_0_10px_var(--cyan-hud)]" : "left-0.5 bg-muted-foreground",
-                  )}
-                />
-              </button>
+              <Toggle on={i.on} onToggle={() => toggle(i.id)} label={`Toggle ${i.n}`} />
             </div>
             <h3 className="mt-3 text-[13.5px] font-bold">{i.n}</h3>
             <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">{i.d}</p>
-            <p className={cn("mt-3 text-[11px] font-semibold", i.on ? "text-emerald-hud" : "text-muted-foreground")}>
-              {i.on ? "● Connected" : "○ Offline"}
+            <p
+              className={cn(
+                "mt-3 flex items-center gap-2 text-[11px] font-bold",
+                i.on ? "text-emerald-hud" : "text-muted-foreground",
+              )}
+            >
+              <i
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  i.on ? "led bg-emerald-hud text-emerald-hud" : "bg-muted-foreground/50",
+                )}
+              />
+              {i.on ? "Connected" : "Offline"}
             </p>
           </article>
         ))}

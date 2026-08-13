@@ -47,7 +47,7 @@ export function MissionControlView() {
           { n: stats.pending, l: "QUEUED", c: "text-violet-hud" },
           { n: stats.done, l: "COMPLETED", c: "text-emerald-hud" },
         ].map((s) => (
-          <div key={s.l} className="glass-soft rounded-xl px-4 py-3">
+          <div key={s.l} className="neu-inset rounded-xl px-4 py-3">
             <p className={cn("font-mono text-xl font-extrabold", s.c)}>{s.n}</p>
             <p className="mt-0.5 text-[10px] tracking-[0.14em] text-muted-foreground">{s.l}</p>
           </div>
@@ -113,7 +113,7 @@ export function MissionControlView() {
           {list.map((m) => {
             const s = label[m.status];
             return (
-              <article key={m.id} className="glass-soft animate-rise-in flex gap-3.5 rounded-xl p-4">
+              <article key={m.id} className="neu gloss animate-rise-in flex gap-3.5 rounded-2xl p-4">
                 <span
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base"
                   style={{
@@ -171,7 +171,7 @@ export function MissionControlView() {
           <p className="mb-2.5 text-[10.5px] font-bold tracking-[0.18em] text-muted-foreground">
             RECENT ACTIVITY
           </p>
-          <div className="glass-soft min-h-0 flex-1 space-y-3 overflow-y-auto rounded-xl p-3.5">
+          <div className="neu-inset min-h-0 flex-1 space-y-3 overflow-y-auto rounded-xl p-3.5">
             {log.map((l) => (
               <div key={l.id} className="border-l border-cyan-hud/30 pl-3">
                 <p className="text-[11.5px] leading-snug text-foreground">{l.text}</p>

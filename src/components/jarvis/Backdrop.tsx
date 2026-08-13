@@ -1,12 +1,12 @@
 export function Backdrop() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <div className="hud-grid absolute inset-0 opacity-60" />
-      <div className="animate-drift-a absolute -left-32 -top-40 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--cyan-hud)_45%,transparent),transparent_70%)] blur-[90px] opacity-50" />
-      <div className="animate-drift-b absolute -bottom-40 -right-24 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--violet-hud)_45%,transparent),transparent_70%)] blur-[90px] opacity-50" />
-      <div className="animate-drift-c absolute left-[34%] top-[38%] h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--blue-hud)_40%,transparent),transparent_70%)] blur-[100px] opacity-40" />
-      <div className="animate-drift-a absolute bottom-[6%] left-[4%] h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--emerald-hud)_35%,transparent),transparent_70%)] blur-[90px] opacity-40" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,var(--background)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_-10%,oklch(0.28_0.015_256),var(--background)_62%)]" />
+      <div className="hud-grid absolute inset-0 opacity-50" />
+      <div className="brushed absolute inset-0 opacity-40" />
+      <div className="animate-drift-a absolute -left-40 -top-48 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--cyan-hud)_30%,transparent),transparent_70%)] blur-[110px] opacity-40" />
+      <div className="animate-drift-b absolute -bottom-52 -right-32 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--blue-hud)_28%,transparent),transparent_70%)] blur-[120px] opacity-35" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_38%,oklch(0.12_0.01_256/_78%)_100%)]" />
     </div>
   );
 }

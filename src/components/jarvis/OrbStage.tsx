@@ -1,114 +1,172 @@
-import { useJarvis } from "./JarvisProvider";
+import { useJarvis, useStats } from "./JarvisProvider";
 
+/** Skeuomorphic core gauge cluster — machined dial with a glass dome over a live readout. */
 export function OrbStage() {
-  const { listening, thinking, speaking, cpu } = useJarvis();
-  const active = listening || thinking || speaking;
-
+  const { thinking, cpu, ram, net } = useJarvis();
+  const stats = useStats();
+  const active = thinking || stats.active > 0;
 
   return (
-    <div className="relative grid min-h-0 flex-1 place-items-center py-2">
-      <svg viewBox="0 0 760 560" className="h-full max-h-[26rem] w-full">
+    <div className="bezel relative grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl p-3">
+      <div className="brushed pointer-events-none absolute inset-0 opacity-60" />
+      <div className="pointer-events-none absolute -left-1/4 top-0 h-full w-1/3 -skew-x-12 animate-sweep bg-[linear-gradient(90deg,transparent,oklch(1_0_0/6%),transparent)]" />
+
+      <svg viewBox="0 0 760 520" className="relative h-full max-h-[24rem] w-full">
         <defs>
+          <radialGradient id="domeGrad" cx="50%" cy="34%">
+            <stop offset="0%" stopColor="oklch(1 0 0)" stopOpacity="0.16" />
+            <stop offset="55%" stopColor="var(--cyan-hud)" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="oklch(0.1 0 0)" stopOpacity="0.35" />
+          </radialGradient>
           <radialGradient id="coreGrad" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="var(--cyan-hud)" stopOpacity="0.42" />
-            <stop offset="60%" stopColor="var(--blue-hud)" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="var(--cyan-hud)" stopOpacity="0.5" />
+            <stop offset="62%" stopColor="var(--blue-hud)" stopOpacity="0.12" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--cyan-hud)" stopOpacity="0.65" />
-            <stop offset="50%" stopColor="var(--violet-hud)" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="var(--cyan-hud)" stopOpacity="0.1" />
+          <linearGradient id="ringMetal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="oklch(0.72 0.01 250)" stopOpacity="0.75" />
+            <stop offset="48%" stopColor="oklch(0.35 0.01 250)" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="oklch(0.85 0.01 250)" stopOpacity="0.35" />
           </linearGradient>
           <filter id="soft">
-            <feGaussianBlur stdDeviation="6" />
+            <feGaussianBlur stdDeviation="7" />
           </filter>
         </defs>
 
-        <g style={{ transformOrigin: "380px 280px" }} className="animate-spin-slow">
-          <ellipse cx="380" cy="280" rx="280" ry="150" fill="none" stroke="url(#ringGrad)" strokeWidth="1.2" strokeDasharray="4 9" />
-          <circle cx="660" cy="280" r="7" fill="var(--violet-hud)" />
-          <circle cx="100" cy="280" r="5" fill="var(--cyan-hud)" />
-        </g>
-        <g style={{ transformOrigin: "380px 280px" }} className="animate-spin-slower">
-          <ellipse cx="380" cy="280" rx="340" ry="205" fill="none" stroke="url(#ringGrad)" strokeWidth="1" transform="rotate(18 380 280)" />
-          <circle cx="716" cy="300" r="6" fill="var(--emerald-hud)" />
-          <circle cx="52" cy="262" r="6" fill="var(--cyan-hud)" />
-        </g>
-        <g style={{ transformOrigin: "380px 280px" }} className="animate-spin-slow">
-          <ellipse cx="380" cy="280" rx="200" ry="235" fill="none" stroke="url(#ringGrad)" strokeWidth="1" transform="rotate(-26 380 280)" strokeDasharray="2 12" />
-          <circle cx="560" cy="440" r="6" fill="var(--amber-hud)" />
-          <circle cx="212" cy="118" r="5" fill="var(--blue-hud)" />
+        {/* machined outer ring */}
+        <circle cx="380" cy="256" r="196" fill="none" stroke="url(#ringMetal)" strokeWidth="12" />
+        <circle cx="380" cy="256" r="204" fill="none" stroke="oklch(0 0 0 / 45%)" strokeWidth="2" />
+        <circle cx="380" cy="256" r="187" fill="none" stroke="oklch(1 0 0 / 10%)" strokeWidth="1" />
+
+        {/* tick marks */}
+        <g stroke="var(--cyan-hud)" strokeOpacity="0.45">
+          {Array.from({ length: 60 }).map((_, i) => {
+            const a = (i / 60) * Math.PI * 2;
+            const r1 = 172;
+            const r2 = i % 5 === 0 ? 158 : 165;
+            return (
+              <line
+                key={i}
+                x1={380 + Math.cos(a) * r1}
+                y1={256 + Math.sin(a) * r1}
+                x2={380 + Math.cos(a) * r2}
+                y2={256 + Math.sin(a) * r2}
+                strokeWidth={i % 5 === 0 ? 2 : 1}
+              />
+            );
+          })}
         </g>
 
-        <circle cx="380" cy="280" r="150" fill="url(#coreGrad)" filter="url(#soft)" className="animate-core-pulse" />
+        <g style={{ transformOrigin: "380px 256px" }} className="animate-spin-slow">
+          <circle
+            cx="380"
+            cy="256"
+            r="148"
+            fill="none"
+            stroke="var(--cyan-hud)"
+            strokeOpacity="0.3"
+            strokeWidth="1.5"
+            strokeDasharray="3 12"
+          />
+        </g>
+        <g style={{ transformOrigin: "380px 256px" }} className="animate-spin-slower">
+          <circle
+            cx="380"
+            cy="256"
+            r="132"
+            fill="none"
+            stroke="var(--violet-hud)"
+            strokeOpacity="0.28"
+            strokeWidth="1.2"
+            strokeDasharray="46 220"
+          />
+        </g>
+
+        {/* glass dome + core */}
+        <circle cx="380" cy="256" r="150" fill="url(#coreGrad)" filter="url(#soft)" className="animate-core-pulse" />
+        <circle cx="380" cy="256" r="120" fill="url(#domeGrad)" stroke="oklch(1 0 0 / 14%)" strokeWidth="1.5" />
+        <ellipse cx="345" cy="196" rx="52" ry="26" fill="oklch(1 0 0 / 9%)" transform="rotate(-24 345 196)" />
+
+        {/* load arc */}
         <circle
           cx="380"
-          cy="280"
-          r="96"
-          fill="color-mix(in oklab, var(--cyan-hud) 5%, transparent)"
-          stroke="var(--cyan-hud)"
-          strokeWidth={active ? 2 : 1.3}
-          className="animate-core-pulse"
-        />
-        <circle cx="380" cy="280" r="72" fill="none" stroke="var(--cyan-hud)" strokeOpacity="0.5" strokeWidth="1" />
-        <circle
-          cx="380"
-          cy="280"
-          r="118"
+          cy="256"
+          r="120"
           fill="none"
           stroke="var(--cyan-hud)"
-          strokeOpacity="0.28"
-          strokeWidth="1"
-          strokeDasharray={`${cpu * 3} 900`}
-          transform="rotate(-90 380 280)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${(cpu / 100) * 754} 900`}
+          transform="rotate(-90 380 256)"
+          style={{ filter: "drop-shadow(0 0 8px var(--cyan-hud))" }}
+        />
+        <circle
+          cx="380"
+          cy="256"
+          r="104"
+          fill="none"
+          stroke="var(--violet-hud)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={`${(ram / 100) * 653} 900`}
+          transform="rotate(-90 380 256)"
+          strokeOpacity="0.75"
         />
 
-        {/* face */}
-        <g transform="translate(380,262)">
-          <ellipse cx="-16" cy="0" rx="4" ry={active ? 6 : 11} fill="var(--cyan-hud)">
-            <animate attributeName="ry" values="11;3;11" dur="5s" repeatCount="indefinite" />
-          </ellipse>
-          <ellipse cx="16" cy="0" rx="4" ry={active ? 6 : 11} fill="var(--cyan-hud)">
-            <animate attributeName="ry" values="11;3;11" dur="5s" repeatCount="indefinite" />
-          </ellipse>
-          <path d="M-15 25 Q0 36 15 25" stroke="var(--cyan-hud)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        </g>
         <text
           x="380"
-          y="352"
+          y="240"
           textAnchor="middle"
           fill="var(--foreground)"
-          fontSize="22"
+          fontSize="46"
           fontWeight="700"
-          letterSpacing="9"
+          fontFamily="var(--font-mono)"
+        >
+          {cpu}%
+        </text>
+        <text
+          x="380"
+          y="268"
+          textAnchor="middle"
+          fill="var(--muted-foreground)"
+          fontSize="13"
+          letterSpacing="6"
           fontFamily="var(--font-display)"
         >
-          JARVIS
+          CORE LOAD
+        </text>
+        <text
+          x="380"
+          y="316"
+          textAnchor="middle"
+          fill="var(--cyan-hud)"
+          fontSize="12"
+          letterSpacing="4"
+          fontFamily="var(--font-mono)"
+        >
+          {Math.round(net)} KB/S · {stats.running} AGENTS
         </text>
       </svg>
 
-      <div className="pointer-events-none absolute bottom-1 flex items-center gap-3 rounded-full border border-border bg-background/50 px-4 py-1.5 backdrop-blur-md">
+      <div className="neu-inset absolute bottom-3 flex items-center gap-3 rounded-full px-4 py-2">
         <span className="flex h-4 items-end gap-[3px]">
           {[0, 1, 2, 3, 4, 5, 6].map((i) => (
             <i
               key={i}
-              className="w-[3px] rounded-full bg-cyan-hud"
+              className="w-[3px] rounded-full bg-cyan-hud shadow-[0_0_6px_var(--cyan-hud)]"
               style={{
                 height: "100%",
-                animation: active
-                  ? `eq ${0.55 + (i % 4) * 0.16}s ease-in-out ${i * 0.06}s infinite`
-                  : "none",
+                animation: active ? `eq ${0.6 + (i % 4) * 0.16}s ease-in-out ${i * 0.06}s infinite` : "none",
                 transform: active ? undefined : "scaleY(0.22)",
                 transformOrigin: "bottom",
-                opacity: active ? 1 : 0.45,
+                opacity: active ? 1 : 0.4,
               }}
             />
           ))}
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {listening ? "Listening" : thinking ? "Reasoning" : speaking ? "Speaking" : "Standing by"}
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+          {thinking ? "Processing" : stats.active > 0 ? "Operating" : "Standing by"}
         </span>
-
       </div>
     </div>
   );

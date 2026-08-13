@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
-import { askJarvis } from "@/lib/jarvis-agent.functions";
 import {
   clock,
   missionAccents,
@@ -54,34 +53,26 @@ function useJarvisState() {
     {
       id: uid(),
       role: "jarvis",
-      text: "Good to see you, Gopi. Every subsystem is online — say “Jarvis” or press the microphone whenever you're ready.",
+      text: "Console ready, Gopi. Type a directive or tap a command chip below.",
       at: Date.now() - 5_000,
     },
   ]);
   const [thinking, setThinking] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
-  const [interim, setInterim] = useState("");
-  const [speechOn, setSpeechOn] = useState(true);
-  const [voiceRate, setVoiceRate] = useState(1.04);
-  const [voiceName, setVoiceName] = useState<string>("");
-  const [voices, setVoices] = useState<{ name: string; lang: string }[]>([]);
   const [autonomy, setAutonomy] = useState(72);
-  const [wakeWord, setWakeWord] = useState(false);
-  const [micSupported, setMicSupported] = useState(true);
+  const [density, setDensity] = useState(64);
+  const [telemetryOn, setTelemetryOn] = useState(true);
+  const [autoDispatch, setAutoDispatch] = useState(true);
+  const [confirmDestructive, setConfirmDestructive] = useState(true);
   const [cpu, setCpu] = useState(18);
   const [ram, setRam] = useState(42);
   const [net, setNet] = useState(120.4);
 
-  const recognitionRef = useRef<any>(null);
-  const listeningRef = useRef(false);
-  const wakeWordRef = useRef(false);
-  const speakingRef = useRef(false);
-  const stateRef = useRef({ agents, missions, cpu, ram, net, autonomy, messages });
-  stateRef.current = { agents, missions, cpu, ram, net, autonomy, messages };
+  const stateRef = useRef({ agents, missions, cpu, ram, net, autonomy });
+  stateRef.current = { agents, missions, cpu, ram, net, autonomy };
 
   /* ------- live telemetry ------- */
   useEffect(() => {
+    if (!telemetryOn) return;
     const t = setInterval(() => {
       setCpu(14 + Math.round(Math.random() * 16));
       setRam(36 + Math.round(Math.random() * 14));
@@ -95,7 +86,7 @@ function useJarvisState() {
       );
     }, 2500);
     return () => clearInterval(t);
-  }, []);
+  }, [telemetryOn]);
 
   const pushLog = useCallback((text: string) => {
     setLog((l) => [{ id: uid(), text, at: Date.now() }, ...l].slice(0, 40));
@@ -107,6 +98,7 @@ function useJarvisState() {
 
   /* ------- autonomous mission progress ------- */
   useEffect(() => {
+    if (!autoDispatch) return;
     const t = setInterval(() => {
       setMissions((prev) =>
         prev.map((m) => {
@@ -124,7 +116,7 @@ function useJarvisState() {
       );
     }, 3000);
     return () => clearInterval(t);
-  }, [pushLog, pushNotification]);
+  }, [autoDispatch, pushLog, pushNotification]);
 
   const markAllRead = useCallback(
     () => setNotifications((n) => n.map((x) => ({ ...x, read: true }))),
@@ -134,58 +126,6 @@ function useJarvisState() {
   const dismissNotification = useCallback(
     (id: string) => setNotifications((n) => n.filter((x) => x.id !== id)),
     [],
-  );
-
-  /* ------- speech synthesis ------- */
-  useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    const load = () => {
-      const list = window.speechSynthesis.getVoices();
-      if (!list.length) return;
-      setVoices(list.map((v) => ({ name: v.name, lang: v.lang })));
-      setVoiceName((cur) => {
-        if (cur) return cur;
-        const preferred =
-          list.find((v) => /daniel|google uk english male|arthur|male/i.test(v.name) && /en/i.test(v.lang)) ??
-          list.find((v) => /en-GB/i.test(v.lang)) ??
-          list.find((v) => /en/i.test(v.lang));
-        return preferred?.name ?? list[0]?.name ?? "";
-      });
-    };
-    load();
-    window.speechSynthesis.onvoiceschanged = load;
-    return () => {
-      window.speechSynthesis.onvoiceschanged = null;
-    };
-  }, []);
-
-  const stopSpeaking = useCallback(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    speakingRef.current = false;
-    setSpeaking(false);
-  }, []);
-
-  const speak = useCallback(
-    (text: string) => {
-      if (!speechOn || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      const match = window.speechSynthesis.getVoices().find((v) => v.name === voiceName);
-      if (match) u.voice = match;
-      u.rate = voiceRate;
-      u.pitch = 0.92;
-      u.onstart = () => {
-        speakingRef.current = true;
-        setSpeaking(true);
-      };
-      u.onend = u.onerror = () => {
-        speakingRef.current = false;
-        setSpeaking(false);
-      };
-      window.speechSynthesis.speak(u);
-    },
-    [speechOn, voiceName, voiceRate],
   );
 
   /* ------- agents ------- */
@@ -227,7 +167,7 @@ function useJarvisState() {
       const m: Mission = {
         id: uid(),
         title,
-        desc: desc || "Autonomously planned by the orchestrator core.",
+        desc: desc || "Planned by the orchestrator core.",
         icon: missionIcons[Math.floor(Math.random() * missionIcons.length)] ?? "🎯",
         accent: missionAccents[Math.floor(Math.random() * missionAccents.length)] ?? "var(--cyan-hud)",
         status: "progress",
@@ -267,251 +207,120 @@ function useJarvisState() {
     [pushLog],
   );
 
-  /* ------- action execution ------- */
-  const runAction = useCallback(
-    (action: string, target: string) => {
-      const t = target.trim();
-      const findMission = () =>
-        stateRef.current.missions.find((m) => m.title.toLowerCase().includes(t.toLowerCase())) ??
-        stateRef.current.missions.find((m) => m.status === "progress");
-      const findAgent = () =>
-        stateRef.current.agents.find((a) => a.name.toLowerCase().includes(t.toLowerCase()));
+  /* ------- console (deterministic command interpreter) ------- */
+  const respond = useCallback(
+    (text: string): { reply: string; confirm?: boolean } => {
+      const q = text.toLowerCase().trim();
+      const s = stateRef.current;
 
-      switch (action) {
-        case "create_mission":
-          createMission(t || "Untitled Mission", "Dispatched by voice command.");
-          break;
-        case "pause_mission": {
-          const m = findMission();
-          if (m) setMissionStatus(m.id, "paused");
-          break;
-        }
-        case "resume_mission": {
-          const m = findMission();
-          if (m) setMissionStatus(m.id, "progress");
-          break;
-        }
-        case "cancel_mission": {
-          const m = findMission();
-          if (m) setMissionStatus(m.id, "cancelled");
-          break;
-        }
-        case "start_agent": {
-          const a = findAgent();
-          if (a) setAgentStatus(a.id, "running");
-          break;
-        }
-        case "stop_agent": {
-          const a = findAgent();
-          if (a) setAgentStatus(a.id, "stopped");
-          break;
-        }
-        case "navigate": {
-          const v = VIEWS.find((x) => x === t.toLowerCase());
-          if (v) setView(v);
-          break;
-        }
-        case "clear_chat":
-          setMessages([]);
-          break;
-        case "speak_off":
-          setSpeechOn(false);
-          break;
-        case "speak_on":
-          setSpeechOn(true);
-          break;
-        default:
-          break;
+      const createMatch = q.match(/^(?:create|new|dispatch|start)\s+mission[:\s]+(.+)$/);
+      if (createMatch?.[1]) {
+        const title = createMatch[1].trim();
+        createMission(title.charAt(0).toUpperCase() + title.slice(1), "Dispatched from the console.");
+        return { reply: `Mission “${title}” dispatched and now running.`, confirm: true };
       }
+
+      const navMatch = q.match(/^(?:open|go to|show)\s+(\w+)/);
+      if (navMatch?.[1]) {
+        const key = VIEWS.find((v) => v.startsWith(navMatch[1]!.slice(0, 4)));
+        if (key) {
+          setView(key);
+          return { reply: `Opening ${key}.`, confirm: true };
+        }
+      }
+
+      const agentMatch = q.match(/^(start|stop|activate|suspend)\s+(.+)$/);
+      if (agentMatch?.[2]) {
+        const target = agentMatch[2].trim();
+        const a = s.agents.find((x) => x.name.toLowerCase().includes(target));
+        if (a) {
+          const on = /start|activate/.test(agentMatch[1]!);
+          setAgentStatus(a.id, on ? "running" : "stopped");
+          return { reply: `${a.name} ${on ? "activated" : "suspended"}.`, confirm: true };
+        }
+      }
+
+      if (/pause (all|every)? ?mission/.test(q)) {
+        s.missions
+          .filter((m) => m.status === "progress")
+          .forEach((m) => setMissionStatus(m.id, "paused"));
+        return { reply: "All active missions paused.", confirm: true };
+      }
+
+      if (/status|report|diagnostic|health/.test(q)) {
+        return {
+          reply: `Systems nominal. CPU ${s.cpu}%, memory ${s.ram}%, network ${s.net} KB/s. ${
+            s.agents.filter((a) => a.status === "running").length
+          } of ${s.agents.length} agents online, ${
+            s.missions.filter((m) => m.status === "progress").length
+          } missions in flight.`,
+        };
+      }
+
+      if (/agents?/.test(q)) {
+        return {
+          reply: `Online: ${
+            s.agents
+              .filter((a) => a.status === "running")
+              .map((a) => `${a.name} (${a.load}%)`)
+              .join(", ") || "none"
+          }.`,
+        };
+      }
+
+      if (/mission|in flight|tasks?/.test(q)) {
+        return {
+          reply: `In flight: ${
+            s.missions
+              .filter((m) => m.status === "progress")
+              .map((m) => `${m.title} — ${Math.round(m.progress)}%`)
+              .join(" · ") || "nothing right now"
+          }.`,
+        };
+      }
+
+      if (/help|command/.test(q)) {
+        return {
+          reply:
+            "Try: “status report”, “create mission: weekly digest”, “stop sentinel”, “pause all missions”, or “open workflows”.",
+        };
+      }
+
+      return {
+        reply: `Logged “${text}”. Say “help” for the command set, or dispatch it as a mission from Mission Control.`,
+      };
     },
     [createMission, setAgentStatus, setMissionStatus],
   );
 
-  /* ------- conversation (AI brain) ------- */
   const sendMessage = useCallback(
-    async (text: string) => {
+    (text: string) => {
       const clean = text.trim();
       if (!clean) return;
-      stopSpeaking();
-      setInterim("");
       setMessages((m) => [...m, { id: uid(), role: "user", text: clean, at: Date.now() }]);
       setThinking(true);
-
-      const s = stateRef.current;
-      const context = [
-        `CPU ${s.cpu}% | RAM ${s.ram}% | NET ${s.net} KB/s | autonomy ${s.autonomy}%`,
-        `Agents: ${s.agents.map((a) => `${a.name} (${a.status}, load ${a.load}%)`).join("; ")}`,
-        `Missions: ${s.missions
-          .map((m) => `${m.title} (${m.status}, ${Math.round(m.progress)}%)`)
-          .join("; ")}`,
-        `Current view: ${view}`,
-      ].join("\n");
-
-      const history = [...s.messages, { role: "user" as const, text: clean, id: "", at: 0 }]
-        .slice(-12)
-        .map((m) => ({
-          role: (m.role === "jarvis" ? "assistant" : "user") as "assistant" | "user",
-          text: m.text,
-        }));
-
-      try {
-        const out = await askJarvis({ data: { messages: history, context } });
-        const reply = out?.reply?.trim() || "Understood.";
-        const action = out?.action ?? "none";
+      const out = respond(clean);
+      window.setTimeout(() => {
         setMessages((m) => [
           ...m,
           {
             id: uid(),
             role: "jarvis",
-            text: reply,
+            text: out.reply,
             at: Date.now(),
-            kind: action !== "none" ? "confirm" : "normal",
+            kind: out.confirm ? "confirm" : "normal",
           },
         ]);
-        if (action !== "none") {
-          runAction(action, out.target ?? "");
-          pushLog(`Voice action executed: ${action}${out.target ? ` → ${out.target}` : ""}.`);
-        }
-        speak(reply);
-      } catch (err) {
-        console.error(err);
-        const fallback =
-          "My uplink to the reasoning core failed. Core systems remain nominal — try again in a moment.";
-        setMessages((m) => [...m, { id: uid(), role: "jarvis", text: fallback, at: Date.now() }]);
-        toast.error("Reasoning core unreachable");
-        speak(fallback);
-      } finally {
         setThinking(false);
-      }
+      }, 420);
     },
-    [pushLog, runAction, speak, stopSpeaking, view],
+    [respond],
   );
-
-  const sendMessageRef = useRef(sendMessage);
-  sendMessageRef.current = sendMessage;
 
   const clearChat = useCallback(() => {
     setMessages([]);
-    toast("Conversation log cleared");
+    toast("Console log cleared");
   }, []);
-
-  /* ------- voice input ------- */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) {
-      setMicSupported(false);
-      return;
-    }
-    const rec = new SR();
-    rec.lang = "en-US";
-    rec.interimResults = true;
-    rec.continuous = true;
-
-    rec.onresult = (e: any) => {
-      let final = "";
-      let partial = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) final += r[0].transcript;
-        else partial += r[0].transcript;
-      }
-      setInterim(partial);
-      const said = final.trim();
-      if (!said) return;
-
-      if (wakeWordRef.current && !listeningRef.current) {
-        if (/\b(jarvis|friday)\b/i.test(said)) {
-          const command = said.replace(/.*\b(jarvis|friday)\b[,.\s]*/i, "").trim();
-          if (command) sendMessageRef.current(command);
-          else {
-            listeningRef.current = true;
-            setListening(true);
-          }
-        }
-        return;
-      }
-      if (listeningRef.current) sendMessageRef.current(said);
-    };
-
-    rec.onerror = (e: any) => {
-      if (e?.error === "not-allowed") {
-        toast.error("Microphone access denied");
-        wakeWordRef.current = false;
-        setWakeWord(false);
-        listeningRef.current = false;
-        setListening(false);
-      }
-    };
-
-    rec.onend = () => {
-      if (listeningRef.current || wakeWordRef.current) {
-        try {
-          rec.start();
-        } catch {
-          /* already starting */
-        }
-      } else {
-        setInterim("");
-      }
-    };
-
-    recognitionRef.current = rec;
-    return () => {
-      listeningRef.current = false;
-      wakeWordRef.current = false;
-      try {
-        rec.stop();
-      } catch {
-        /* noop */
-      }
-    };
-  }, []);
-
-  const syncRecognition = useCallback((active: boolean) => {
-    const rec = recognitionRef.current;
-    if (!rec) return;
-    try {
-      if (active) rec.start();
-      else rec.stop();
-    } catch {
-      /* already in that state */
-    }
-  }, []);
-
-  const toggleListening = useCallback(() => {
-    if (!micSupported) {
-      toast.error("Voice capture isn't supported in this browser");
-      return;
-    }
-    const next = !listeningRef.current;
-    listeningRef.current = next;
-    setListening(next);
-    if (next) {
-      stopSpeaking();
-      syncRecognition(true);
-    } else if (!wakeWordRef.current) {
-      syncRecognition(false);
-    }
-  }, [micSupported, stopSpeaking, syncRecognition]);
-
-  const setWakeWordEnabled = useCallback(
-    (on: boolean) => {
-      if (on && !micSupported) {
-        toast.error("Voice capture isn't supported in this browser");
-        return;
-      }
-      wakeWordRef.current = on;
-      setWakeWord(on);
-      if (on) {
-        syncRecognition(true);
-        toast("Wake word armed — say “Jarvis”");
-      } else if (!listeningRef.current) {
-        syncRecognition(false);
-      }
-    },
-    [micSupported, syncRecognition],
-  );
 
   const unread = notifications.filter((n) => !n.read).length;
 
@@ -537,24 +346,16 @@ function useJarvisState() {
     sendMessage,
     clearChat,
     thinking,
-    listening,
-    speaking,
-    interim,
-    toggleListening,
-    stopSpeaking,
-    micSupported,
-    speechOn,
-    setSpeechOn,
-    voices,
-    voiceName,
-    setVoiceName,
-    voiceRate,
-    setVoiceRate,
-    speak,
     autonomy,
     setAutonomy,
-    wakeWord,
-    setWakeWord: setWakeWordEnabled,
+    density,
+    setDensity,
+    telemetryOn,
+    setTelemetryOn,
+    autoDispatch,
+    setAutoDispatch,
+    confirmDestructive,
+    setConfirmDestructive,
     cpu,
     ram,
     net,

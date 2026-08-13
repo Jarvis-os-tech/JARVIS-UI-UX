@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JarvisApp } from "@/components/jarvis/JarvisApp";
 
-const title = "JARVIS — Autonomous Voice Orchestrator HUD";
+const title = "JARVIS — Autonomous Agent Command Console";
 const description =
-  "A holographic command deck for an always-on voice AI: live agent swarm, mission control, memory recall and autonomous workflows.";
+  "A tactile command deck for an autonomous agent swarm: live telemetry, mission control, memory recall and workflow automation.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
