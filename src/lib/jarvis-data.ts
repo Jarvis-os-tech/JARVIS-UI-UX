@@ -68,9 +68,9 @@ export const seedAgents: Agent[] = [
   },
   {
     id: "a2",
-    name: "Voice Interface",
-    desc: "Always-on wake-word listening, streaming ASR and neural speech synthesis.",
-    icon: "🎙",
+    name: "Signal Router",
+    desc: "Routes events between connectors, agents and the console in real time.",
+    icon: "📡",
     accent: "var(--violet-hud)",
     status: "running",
     tasks: 18,
@@ -127,7 +127,7 @@ export const seedMissions: Mission[] = [
   {
     id: "m1",
     title: "Morning Systems Briefing",
-    desc: "Aggregate overnight telemetry and voice-deliver a 90 second digest.",
+    desc: "Aggregate overnight telemetry into a 90 second digest.",
     icon: "☀",
     accent: "var(--amber-hud)",
     status: "progress",
