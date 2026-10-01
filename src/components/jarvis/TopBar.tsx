@@ -1,5 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Activity, Bell, Gauge, Power, Settings2, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { useJarvis, useNow } from "./JarvisProvider";
 import { timeAgo } from "@/lib/jarvis-data";
@@ -44,7 +45,8 @@ export function TopBar() {
   const now = useNow();
 
   return (
-    <header className="bezel gloss relative z-50 flex h-[4.25rem] items-center justify-between gap-4 rounded-2xl px-4 sm:px-5">
+    <header className="bezel relative z-50 flex h-[4.25rem] items-center justify-between gap-4 rounded-2xl px-4 sm:px-5">
+      <div className="gloss pointer-events-none absolute inset-0 rounded-2xl" />
       <div className="flex min-w-0 items-center gap-3">
         <span className="neu relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl">
           <span className="absolute inset-1 animate-ping-ring rounded-xl border border-cyan-hud/40" />
@@ -109,8 +111,8 @@ export function TopBar() {
           </PopoverTrigger>
           <PopoverContent
             align="end"
-            sideOffset={12}
-            className="glass z-[120] w-[min(23rem,calc(100vw-2rem))] border-hairline bg-[oklch(0.24_0.013_256/_92%)] p-0 backdrop-blur-2xl"
+            sideOffset={14}
+            className="glass z-[9999] w-[min(24rem,calc(100vw-2rem))] border-hairline bg-[oklch(0.24_0.013_256/_95%)] p-0 shadow-2xl backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
               <span className="text-xs font-bold tracking-[0.2em] text-foreground">NOTIFICATIONS</span>
@@ -130,7 +132,8 @@ export function TopBar() {
               {notifications.map((n) => (
                 <div
                   key={n.id}
-                  className="neu-sm group animate-rise-in mb-2 flex gap-3 rounded-xl p-3 last:mb-0"
+                  onClick={() => toast(n.title, { description: timeAgo(n.at) })}
+                  className="neu-sm group animate-rise-in mb-2 flex cursor-pointer gap-3 rounded-xl p-3 last:mb-0 transition-colors hover:border-cyan-hud/40"
                 >
                   <span className="neu-inset grid h-8 w-8 shrink-0 place-items-center rounded-lg text-sm">
                     {n.icon}
@@ -140,7 +143,10 @@ export function TopBar() {
                     <p className="mt-1 font-mono text-[10px] text-muted-foreground">{timeAgo(n.at)}</p>
                   </div>
                   <button
-                    onClick={() => dismissNotification(n.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dismissNotification(n.id);
+                    }}
                     aria-label="Dismiss"
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >
