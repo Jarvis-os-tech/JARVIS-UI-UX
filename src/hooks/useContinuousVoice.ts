@@ -95,7 +95,7 @@ export function useContinuousVoice({
       silenceTimerRef.current = null;
     }
 
-    if (window.speechSynthesis) {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
 
@@ -112,7 +112,7 @@ export function useContinuousVoice({
   }, [cleanupAudio]);
 
   const cancelSpeech = useCallback(() => {
-    if (window.speechSynthesis) {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
@@ -150,7 +150,7 @@ export function useContinuousVoice({
       setIsThinking(false);
 
       // Speak reply
-      if ("speechSynthesis" in window && replyText) {
+      if (typeof window !== "undefined" && "speechSynthesis" in window && replyText) {
         setIsSpeaking(true);
         setLastSpoken(replyText);
 
@@ -235,6 +235,7 @@ export function useContinuousVoice({
 
   // Initialize Audio Analyser for reactive visuals
   const initAudioAnalyser = useCallback(async () => {
+    if (typeof window === "undefined" || !navigator?.mediaDevices) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       mediaStreamRef.current = stream;
@@ -297,6 +298,7 @@ export function useContinuousVoice({
 
   // Start continuous voice session
   const startVoice = useCallback(() => {
+    if (typeof window === "undefined") return;
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
       setError(

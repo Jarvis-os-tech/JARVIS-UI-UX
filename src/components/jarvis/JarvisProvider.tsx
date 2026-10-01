@@ -549,6 +549,16 @@ function useJarvisState() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voiceModalOpen]);
 
+  const sendMessage = useCallback(
+    (text: string) => {
+      const clean = text.trim();
+      if (!clean) return;
+      setMessages((m) => [...m, { id: uid(), role: "user", text: clean, at: Date.now() }]);
+      void sendDirective(clean);
+    },
+    [sendDirective],
+  );
+
   const clearChat = useCallback(() => {
     setMessages([]);
     setAguiMessages([]);

@@ -16,7 +16,9 @@ export function ChatMessageItem({ message, onSpeak }: ChatMessageItemProps) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(message.content);
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(message.content);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -24,7 +26,7 @@ export function ChatMessageItem({ message, onSpeak }: ChatMessageItemProps) {
   const handleSpeak = () => {
     if (onSpeak) {
       onSpeak(message.content);
-    } else if ("speechSynthesis" in window) {
+    } else if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const clean = message.content.replace(/[*#`_~]/g, " ").trim();
       const utter = new SpeechSynthesisUtterance(clean);
