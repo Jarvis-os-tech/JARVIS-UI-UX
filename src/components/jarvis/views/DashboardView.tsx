@@ -2,17 +2,8 @@ import { ChatView } from "../ChatView";
 import { useJarvis, useStats } from "../JarvisProvider";
 
 export function DashboardView() {
-  const {
-    cpu,
-    ram,
-    net,
-    aguiMessages,
-    isStreaming,
-    sendDirective,
-    stopDirective,
-    clearChat,
-    setVoiceModalOpen,
-  } = useJarvis();
+  const { cpu, ram, net, aguiMessages, isStreaming, sendDirective, stopDirective, clearChat } =
+    useJarvis();
   const stats = useStats();
 
   return (
@@ -49,7 +40,6 @@ export function DashboardView() {
           onSendMessage={sendDirective}
           onStopStreaming={stopDirective}
           onClearMessages={clearChat}
-          onOpenVoice={() => setVoiceModalOpen(true)}
         />
       </div>
     </div>

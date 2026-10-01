@@ -1,13 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Square, Mic, Sparkles, Terminal } from "lucide-react";
+import { Send, Square, Terminal, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LiveVoiceOrbit } from "./LiveVoiceOrbit";
 
 interface PromptBarProps {
   onSend: (text: string) => void;
   onStop?: () => void;
-  onOpenVoice: () => void;
   isStreaming?: boolean;
   disabled?: boolean;
+  voiceListening?: boolean;
+  voiceThinking?: boolean;
+  voiceSpeaking?: boolean;
+  voiceTranscript?: string;
+  voiceAudioLevel?: number;
+  onToggleMic?: () => void;
+  onInterruptSpeech?: () => void;
 }
 
 const SUGGESTIONS = [
@@ -23,9 +30,15 @@ const SUGGESTIONS = [
 export function PromptBar({
   onSend,
   onStop,
-  onOpenVoice,
   isStreaming = false,
   disabled = false,
+  voiceListening = true,
+  voiceThinking = false,
+  voiceSpeaking = false,
+  voiceTranscript = "",
+  voiceAudioLevel = 0,
+  onToggleMic,
+  onInterruptSpeech,
 }: PromptBarProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -66,9 +79,45 @@ export function PromptBar({
   };
 
   return (
-    <div className="w-full space-y-3">
-      {/* Quick Suggestion Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+    <div className="w-full space-y-2.5">
+      {/* Live Voice Real-Time Feedback Pill */}
+      {voiceTranscript && (
+        <div className="flex items-center gap-2 rounded-xl border border-cyan-hud/40 bg-cyan-hud/10 px-3.5 py-1.5 text-xs font-mono text-cyan-hud backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-hud opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-hud" />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">
+            JARVIS Hearing:
+          </span>
+          <span className="truncate italic text-foreground max-w-lg">"{voiceTranscript}"</span>
+          <span className="ml-auto font-mono text-[9.5px] text-cyan-hud/80 shrink-0 hidden sm:inline-block">
+            [processing on silence]
+          </span>
+        </div>
+      )}
+
+      {/* Speaking State Banner with Quick Interrupt */}
+      {voiceSpeaking && (
+        <div className="flex items-center gap-2 rounded-xl border border-violet-hud/40 bg-violet-hud/10 px-3.5 py-1.5 text-xs font-mono text-violet-hud backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
+          <Volume2 className="h-3.5 w-3.5 shrink-0 text-violet-hud animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-violet-hud shrink-0">
+            JARVIS Speaking Out Loud
+          </span>
+          {onInterruptSpeech && (
+            <button
+              type="button"
+              onClick={onInterruptSpeech}
+              className="ml-auto text-[10.5px] text-violet-hud/80 hover:text-white underline"
+            >
+              Interrupt speech
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Quick Suggestion Directives */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
         <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground shrink-0 uppercase tracking-wider">
           <Terminal className="h-3 w-3 text-cyan-hud" />
           Directives:
@@ -86,21 +135,19 @@ export function PromptBar({
         ))}
       </div>
 
-      {/* Main Input Capsule */}
-      <div className="glass relative flex items-end gap-2 rounded-2xl border border-hairline bg-[oklch(0.22_0.013_256/_92%)] p-2 shadow-2xl backdrop-blur-xl">
-        {/* Glow Voice Orbit Button */}
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={onOpenVoice}
-            title="Activate Continuous Voice Orbit (FRIDAY)"
-            aria-label="Activate Continuous Voice Orbit"
-            className="neu relative grid h-11 w-11 place-items-center rounded-xl text-cyan-hud transition-transform hover:scale-105 active:scale-95 group"
-          >
-            {/* Animated glowing ring */}
-            <span className="absolute inset-0 rounded-xl border border-cyan-hud/40 animate-ping-ring" />
-            <Mic className="h-5 w-5 drop-shadow-[0_0_8px_var(--cyan-hud)] transition-colors group-hover:text-white" />
-          </button>
+      {/* Main Input Deck with Embedded Live Small Orbit */}
+      <div className="glass relative flex items-end gap-2.5 rounded-2xl border border-hairline bg-[oklch(0.22_0.013_256/_92%)] p-2 shadow-2xl backdrop-blur-xl">
+        {/* Living Small Holographic Voice Orbit */}
+        <div className="relative shrink-0 flex items-center justify-center p-0.5">
+          <LiveVoiceOrbit
+            size="sm"
+            isListening={voiceListening}
+            isThinking={voiceThinking || isStreaming}
+            isSpeaking={voiceSpeaking}
+            audioLevel={voiceAudioLevel}
+            transcript={voiceTranscript}
+            onClick={voiceSpeaking ? onInterruptSpeech : onToggleMic}
+          />
         </div>
 
         {/* Text Area */}
@@ -109,13 +156,13 @@ export function PromptBar({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Directive for JARVIS... (Shift+Enter for newline)"
+          placeholder="Speak directive aloud, or type for JARVIS... (Shift+Enter for newline)"
           rows={1}
           disabled={disabled}
-          className="max-h-36 min-h-[2.75rem] flex-1 resize-none bg-transparent px-3 py-2 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="max-h-36 min-h-[2.75rem] flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
 
-        {/* Send / Stop Button */}
+        {/* Send / Stop Action Button */}
         <div className="shrink-0">
           {isStreaming ? (
             <button

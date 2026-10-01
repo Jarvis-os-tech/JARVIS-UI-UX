@@ -540,14 +540,30 @@ function useJarvisState() {
     onCommand: sendDirective,
   });
 
+  // JARVIS is a voice-first application: voice orbit is alive and runs continuously
   useEffect(() => {
-    if (voiceModalOpen) {
-      voice.startVoice();
-    } else {
+    if (typeof window === "undefined") return;
+
+    // Immediately start continuous hands-free voice loop
+    voice.startVoice();
+
+    // Browser audio/mic policy: ensure first user gesture unlocks mic/AudioContext if initially blocked
+    const unlockVoice = () => {
+      if (!voice.isListening && !voice.isSpeaking && !voice.isThinking) {
+        voice.startVoice();
+      }
+    };
+
+    window.addEventListener("click", unlockVoice, { once: true });
+    window.addEventListener("keydown", unlockVoice, { once: true });
+
+    return () => {
+      window.removeEventListener("click", unlockVoice);
+      window.removeEventListener("keydown", unlockVoice);
       voice.stopVoice();
-    }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceModalOpen]);
+  }, []);
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -601,10 +617,12 @@ function useJarvisState() {
     voiceAudioLevel: voice.audioLevel,
     voiceError: voice.error,
     toggleVoiceMic: () => {
-      if (voice.isListening) {
+      if (voice.isActive) {
         voice.stopVoice();
+        toast("Microphone muted");
       } else {
         voice.startVoice();
+        toast("JARVIS Voice continuous listening active");
       }
     },
     interruptVoiceSpeech: voice.cancelSpeech,

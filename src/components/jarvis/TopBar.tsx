@@ -51,6 +51,10 @@ export function TopBar() {
     telemetryOn,
     setTelemetryOn,
     setView,
+    voiceListening,
+    voiceThinking,
+    voiceSpeaking,
+    voiceAudioLevel,
   } = useJarvis();
   const now = useNow();
 
@@ -106,6 +110,63 @@ export function TopBar() {
               })
             : "--:--:--"}
         </span>
+
+        {/* Live Voice Protocol Status */}
+        <div className="neu-inset hidden md:flex items-center gap-2 rounded-xl px-2.5 py-1.5 font-mono text-xs border border-hairline">
+          <span className="relative flex h-2 w-2">
+            <span
+              className={cn(
+                "absolute inline-flex h-full w-full rounded-full animate-ping opacity-75",
+                voiceSpeaking
+                  ? "bg-violet-hud"
+                  : voiceListening
+                    ? "bg-cyan-hud"
+                    : "bg-muted-foreground",
+              )}
+            />
+            <span
+              className={cn(
+                "relative inline-flex rounded-full h-2 w-2",
+                voiceSpeaking
+                  ? "bg-violet-hud"
+                  : voiceListening
+                    ? "bg-cyan-hud"
+                    : "bg-muted-foreground",
+              )}
+            />
+          </span>
+          <span className="text-[10px] font-bold tracking-wider text-foreground">
+            {voiceSpeaking
+              ? "SPEAKING"
+              : voiceThinking
+                ? "THINKING"
+                : voiceListening
+                  ? "VOICE ON"
+                  : "MUTED"}
+          </span>
+          <span className="flex items-end gap-[2px] h-3 ml-0.5">
+            {[0.4, 0.9, 0.6, 1, 0.5].map((h, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "w-[2px] rounded-full transition-all duration-75",
+                  voiceSpeaking ? "bg-violet-hud" : "bg-cyan-hud",
+                )}
+                style={{
+                  height: `${Math.max(
+                    2,
+                    Math.min(
+                      12,
+                      voiceListening || voiceSpeaking
+                        ? Math.max(0.15, voiceAudioLevel) * 12 * h
+                        : 2,
+                    ),
+                  )}px`,
+                }}
+              />
+            ))}
+          </span>
+        </div>
 
         <button
           onClick={() => setTelemetryOn(!telemetryOn)}
