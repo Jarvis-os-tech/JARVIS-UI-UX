@@ -25,6 +25,9 @@ import {
   type Notification,
   type ViewKey,
 } from "@/lib/jarvis-data";
+import type { AGUIEvent, AGUIMessage, AGUIThoughtStep, AGUIToolCall } from "@/lib/agui-types";
+import { aguiClient } from "@/lib/agui-client";
+import { useContinuousVoice } from "@/hooks/useContinuousVoice";
 
 type Ctx = ReturnType<typeof useJarvisState>;
 
@@ -57,6 +60,19 @@ function useJarvisState() {
       at: Date.now() - 5_000,
     },
   ]);
+  const [aguiMessages, setAguiMessages] = useState<AGUIMessage[]>([
+    {
+      id: uid(),
+      role: "assistant",
+      content:
+        "Console online, Sir. I am listening for your directives via prompt stream or continuous hands-free voice orbit.",
+      timestamp: Date.now() - 5_000,
+      model: "AG-UI / MK-VII",
+    },
+  ]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [voiceModalOpen, setVoiceModalOpen] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [thinking, setThinking] = useState(false);
   const [autonomy, setAutonomy] = useState(72);
   const [density, setDensity] = useState(64);
@@ -293,33 +309,237 @@ function useJarvisState() {
     [createMission, setAgentStatus, setMissionStatus],
   );
 
-  const sendMessage = useCallback(
-    (text: string) => {
+  const sendDirective = useCallback(
+    async (text: string): Promise<string> => {
       const clean = text.trim();
-      if (!clean) return;
-      setMessages((m) => [...m, { id: uid(), role: "user", text: clean, at: Date.now() }]);
-      setThinking(true);
-      const out = respond(clean);
-      window.setTimeout(() => {
-        setMessages((m) => [
-          ...m,
+      if (!clean) return "";
+
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const userMsgId = `u-${uid()}`;
+      const assistantMsgId = `a-${uid()}`;
+      const now = Date.now();
+
+      const userMsg: AGUIMessage = {
+        id: userMsgId,
+        role: "user",
+        content: clean,
+        timestamp: now,
+      };
+
+      const assistantMsg: AGUIMessage = {
+        id: assistantMsgId,
+        role: "assistant",
+        content: "",
+        thoughts: [],
+        toolCalls: [],
+        isStreaming: true,
+        timestamp: now,
+        model: "AG-UI / MK-VII",
+      };
+
+      setAguiMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setIsStreaming(true);
+      pushLog(`Directive dispatched: "${clean}"`);
+
+      let fullContent = "";
+
+      try {
+        await aguiClient.dispatch(
+          clean,
           {
-            id: uid(),
-            role: "jarvis",
-            text: out.reply,
-            at: Date.now(),
-            kind: out.confirm ? "confirm" : "normal",
+            agents: stateRef.current.agents,
+            missions: stateRef.current.missions,
+            telemetry: {
+              cpu: stateRef.current.cpu,
+              ram: stateRef.current.ram,
+              net: stateRef.current.net,
+            },
           },
-        ]);
-        setThinking(false);
-      }, 420);
+          (event: AGUIEvent) => {
+            switch (event.type) {
+              case "StepStarted": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          thoughts: [
+                            ...(msg.thoughts || []),
+                            {
+                              id: event.stepId,
+                              title: event.title,
+                              timestamp: event.timestamp,
+                            },
+                          ],
+                        }
+                      : msg,
+                  ),
+                );
+                break;
+              }
+              case "StepFinished": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          thoughts: (msg.thoughts || []).map((t) =>
+                            t.id === event.stepId
+                              ? { ...t, durationMs: event.timestamp - t.timestamp }
+                              : t,
+                          ),
+                        }
+                      : msg,
+                  ),
+                );
+                break;
+              }
+              case "ToolCallStart": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          toolCalls: [
+                            ...(msg.toolCalls || []),
+                            {
+                              id: event.callId,
+                              tool: event.tool,
+                              args: event.args,
+                              status: "running",
+                            },
+                          ],
+                        }
+                      : msg,
+                  ),
+                );
+                pushLog(`Tool call initiated: ${event.tool}`);
+                break;
+              }
+              case "ToolCallResult": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          toolCalls: (msg.toolCalls || []).map((tc) =>
+                            tc.id === event.callId
+                              ? { ...tc, status: "completed", result: event.result }
+                              : tc,
+                          ),
+                        }
+                      : msg,
+                  ),
+                );
+                break;
+              }
+              case "StateDelta": {
+                if (event.patch.newMission) {
+                  const nm = event.patch.newMission as Mission;
+                  setMissions((prev) => [nm, ...prev]);
+                  pushNotification("🚀", `Mission "${nm.title}" deployed.`);
+                  toast.success(`Mission initialized: ${nm.title}`);
+                }
+                if (event.patch.telemetrySync) {
+                  const ts = event.patch.telemetrySync as { cpu?: number; ram?: number; net?: number };
+                  if (ts.cpu) setCpu(ts.cpu);
+                  if (ts.ram) setRam(ts.ram);
+                  if (ts.net) setNet(ts.net);
+                }
+                break;
+              }
+              case "TextMessageContent": {
+                fullContent += event.delta;
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? { ...msg, content: (msg.content || "") + event.delta }
+                      : msg,
+                  ),
+                );
+                break;
+              }
+              case "TextMessageEnd":
+              case "RunFinished": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? { ...msg, isStreaming: false }
+                      : msg,
+                  ),
+                );
+                setIsStreaming(false);
+                break;
+              }
+              case "RunError": {
+                setAguiMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          content: (msg.content || "") + `\n\n*(Error: ${event.error})*`,
+                          isStreaming: false,
+                        }
+                      : msg,
+                  ),
+                );
+                setIsStreaming(false);
+                toast.error(`AG-UI Run Error: ${event.error}`);
+                break;
+              }
+            }
+          },
+          controller.signal,
+        );
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // Handled abort
+        } else {
+          console.error("Directive execution error:", err);
+        }
+      } finally {
+        setIsStreaming(false);
+      }
+
+      return fullContent;
     },
-    [respond],
+    [pushLog, pushNotification],
   );
+
+  const stopDirective = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsStreaming(false);
+    setAguiMessages((prev) =>
+      prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m)),
+    );
+    toast("Generation halted by user");
+  }, []);
+
+  const voice = useContinuousVoice({
+    onCommand: sendDirective,
+  });
+
+  useEffect(() => {
+    if (voiceModalOpen) {
+      voice.startVoice();
+    } else {
+      voice.stopVoice();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceModalOpen]);
 
   const clearChat = useCallback(() => {
     setMessages([]);
-    toast("Console log cleared");
+    setAguiMessages([]);
+    toast("Console stream cleared");
   }, []);
 
   const unread = notifications.filter((n) => !n.read).length;
@@ -344,6 +564,27 @@ function useJarvisState() {
     pushLog,
     messages,
     sendMessage,
+    aguiMessages,
+    isStreaming,
+    sendDirective,
+    stopDirective,
+    voiceModalOpen,
+    setVoiceModalOpen,
+    voiceListening: voice.isListening,
+    voiceThinking: voice.isThinking,
+    voiceSpeaking: voice.isSpeaking,
+    voiceTranscript: voice.transcript,
+    voiceLastSpoken: voice.lastSpoken,
+    voiceAudioLevel: voice.audioLevel,
+    voiceError: voice.error,
+    toggleVoiceMic: () => {
+      if (voice.isListening) {
+        voice.stopVoice();
+      } else {
+        voice.startVoice();
+      }
+    },
+    interruptVoiceSpeech: voice.cancelSpeech,
     clearChat,
     thinking,
     autonomy,

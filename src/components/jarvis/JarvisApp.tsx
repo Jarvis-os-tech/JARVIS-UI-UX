@@ -3,6 +3,7 @@ import { JarvisProvider, useJarvis } from "./JarvisProvider";
 import { MissionRail } from "./MissionRail";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { VoiceOrbitModal } from "./VoiceOrbitModal";
 import { AgentsView } from "./views/AgentsView";
 import { ConnectorsView } from "./views/ConnectorsView";
 import { DashboardView } from "./views/DashboardView";
@@ -32,6 +33,20 @@ function Views() {
 }
 
 function Shell() {
+  const {
+    voiceModalOpen,
+    setVoiceModalOpen,
+    voiceListening,
+    voiceThinking,
+    voiceSpeaking,
+    voiceTranscript,
+    voiceLastSpoken,
+    voiceAudioLevel,
+    voiceError,
+    toggleVoiceMic,
+    interruptVoiceSpeech,
+  } = useJarvis();
+
   return (
     <div className="relative z-10 flex min-h-screen flex-col gap-3 p-3 lg:h-screen">
       <TopBar />
@@ -42,6 +57,19 @@ function Shell() {
         </main>
         <MissionRail />
       </div>
+      <VoiceOrbitModal
+        isOpen={voiceModalOpen}
+        onClose={() => setVoiceModalOpen(false)}
+        isListening={voiceListening}
+        isThinking={voiceThinking}
+        isSpeaking={voiceSpeaking}
+        transcript={voiceTranscript}
+        lastSpoken={voiceLastSpoken}
+        audioLevel={voiceAudioLevel}
+        error={voiceError}
+        onToggleMic={toggleVoiceMic}
+        onInterruptSpeech={interruptVoiceSpeech}
+      />
     </div>
   );
 }

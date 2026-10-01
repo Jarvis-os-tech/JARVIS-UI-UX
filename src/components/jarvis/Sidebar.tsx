@@ -3,6 +3,7 @@ import {
   Bot,
   Brain,
   LayoutDashboard,
+  Mic,
   Plug,
   Settings2,
   Target,
@@ -23,7 +24,7 @@ const items: { key: ViewKey; label: string; sub: string; Icon: typeof Boxes }[] 
 ];
 
 export function Sidebar() {
-  const { view, setView } = useJarvis();
+  const { view, setView, setVoiceModalOpen } = useJarvis();
   const stats = useStats();
 
   return (
@@ -62,6 +63,26 @@ export function Sidebar() {
       })}
 
       <div className="hidden flex-1 lg:block" />
+
+      {/* Voice Mode Quick Launcher */}
+      <button
+        type="button"
+        onClick={() => setVoiceModalOpen(true)}
+        className="neu group relative flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all border border-cyan-hud/30 hover:border-cyan-hud/70 hover:shadow-[0_0_16px_rgba(45,212,235,0.25)] lg:w-full"
+      >
+        <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-cyan-hud/15 text-cyan-hud">
+          <Mic className="h-4 w-4" />
+          <span className="absolute inset-0 rounded-lg border border-cyan-hud/40 animate-ping-ring" />
+        </span>
+        <div className="hidden min-w-0 lg:block">
+          <span className="block truncate text-[12.5px] font-bold text-cyan-hud leading-tight">
+            Continuous Voice
+          </span>
+          <span className="block truncate text-[9.5px] uppercase tracking-[0.14em] text-muted-foreground">
+            FRIDAY Orbit
+          </span>
+        </div>
+      </button>
 
       <div className="neu-inset hidden rounded-2xl p-3 lg:block">
         <div className="flex items-center gap-2.5">

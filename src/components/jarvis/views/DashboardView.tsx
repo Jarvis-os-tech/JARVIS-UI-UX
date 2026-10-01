@@ -1,14 +1,23 @@
-import { Conversation } from "../Conversation";
-import { OrbStage } from "../OrbStage";
+import { ChatView } from "../ChatView";
 import { useJarvis, useStats } from "../JarvisProvider";
 
 export function DashboardView() {
-  const { cpu, ram, net } = useJarvis();
+  const {
+    cpu,
+    ram,
+    net,
+    aguiMessages,
+    isStreaming,
+    sendDirective,
+    stopDirective,
+    clearChat,
+    setVoiceModalOpen,
+  } = useJarvis();
   const stats = useStats();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 shrink-0">
         <div className="min-w-0">
           <h1 className="font-display etched text-2xl font-bold tracking-wide">
             Good to see you, <span className="text-aurora">Gopi</span>
@@ -33,8 +42,16 @@ export function DashboardView() {
         </div>
       </header>
 
-      <OrbStage />
-      <Conversation />
+      <div className="glass flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-hairline bg-[oklch(0.22_0.013_256/_75%)] shadow-2xl">
+        <ChatView
+          messages={aguiMessages}
+          isStreaming={isStreaming}
+          onSendMessage={sendDirective}
+          onStopStreaming={stopDirective}
+          onClearMessages={clearChat}
+          onOpenVoice={() => setVoiceModalOpen(true)}
+        />
+      </div>
     </div>
   );
 }
