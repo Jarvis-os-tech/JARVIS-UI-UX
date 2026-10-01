@@ -76,9 +76,23 @@ export function ChatView({
             <div className="my-10 flex flex-col items-center text-center animate-rise-in">
               <div className="neu relative mb-6 grid h-20 w-20 place-items-center rounded-3xl border border-cyan-hud/30 shadow-[0_0_30px_rgba(45,212,235,0.2)]">
                 <div className="absolute inset-2 animate-ping-ring rounded-2xl border border-cyan-hud/30" />
-                <svg viewBox="0 0 24 24" fill="none" className="h-10 w-10 drop-shadow-[0_0_12px_var(--cyan-hud)]">
-                  <path d="M12 2L2 8l10 6 10-6-10-6z" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M2 16l10 6 10-6M2 12l10 6 10-6" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-10 w-10 drop-shadow-[0_0_12px_var(--cyan-hud)]"
+                >
+                  <path
+                    d="M12 2L2 8l10 6 10-6-10-6z"
+                    stroke="var(--cyan-hud)"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M2 16l10 6 10-6M2 12l10 6 10-6"
+                    stroke="var(--cyan-hud)"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
 
@@ -86,19 +100,23 @@ export function ChatView({
                 JARVIS COMMAND STREAM
               </h2>
               <p className="mt-2 max-w-md text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Autonomous voice & agent orchestrator powered by the AG-UI Protocol.
-                Issue directives below or activate hands-free continuous voice mode.
+                Autonomous voice & agent orchestrator powered by the AG-UI Protocol. Issue
+                directives below or activate hands-free continuous voice mode.
               </p>
 
               {/* Feature Pill Matrix */}
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-xl text-left">
                 <div
-                  onClick={() => onSendMessage("Run complete system diagnostic across active nodes")}
+                  onClick={() =>
+                    onSendMessage("Run complete system diagnostic across active nodes")
+                  }
                   className="neu-sm cursor-pointer rounded-2xl p-4 transition-all hover:border-cyan-hud/40 hover:scale-[1.02] group"
                 >
                   <div className="flex items-center gap-2 text-cyan-hud mb-1.5">
                     <Zap className="h-4 w-4" />
-                    <span className="font-display text-xs font-bold tracking-wider">DIAGNOSTIC</span>
+                    <span className="font-display text-xs font-bold tracking-wider">
+                      DIAGNOSTIC
+                    </span>
                   </div>
                   <p className="text-[11.5px] text-muted-foreground group-hover:text-foreground/90 transition-colors">
                     Probe node cluster latencies, memory integrity, and network packets.
@@ -106,7 +124,9 @@ export function ChatView({
                 </div>
 
                 <div
-                  onClick={() => onSendMessage("Deploy autonomous mission to scan and index intelligence feeds")}
+                  onClick={() =>
+                    onSendMessage("Deploy autonomous mission to scan and index intelligence feeds")
+                  }
                   className="neu-sm cursor-pointer rounded-2xl p-4 transition-all hover:border-amber-hud/40 hover:scale-[1.02] group"
                 >
                   <div className="flex items-center gap-2 text-amber-hud mb-1.5">
@@ -124,7 +144,9 @@ export function ChatView({
                 >
                   <div className="flex items-center gap-2 text-violet-hud mb-1.5">
                     <Mic className="h-4 w-4" />
-                    <span className="font-display text-xs font-bold tracking-wider">VOICE ORBIT</span>
+                    <span className="font-display text-xs font-bold tracking-wider">
+                      VOICE ORBIT
+                    </span>
                   </div>
                   <p className="text-[11.5px] text-muted-foreground group-hover:text-foreground/90 transition-colors">
                     Launch holographic Arc Reactor hands-free voice dialogue loop.
@@ -134,9 +156,7 @@ export function ChatView({
             </div>
           ) : (
             /* Render Message History */
-            messages.map((msg) => (
-              <ChatMessageItem key={msg.id} message={msg} />
-            ))
+            messages.map((msg) => <ChatMessageItem key={msg.id} message={msg} />)
           )}
 
           <div ref={messagesEndRef} />

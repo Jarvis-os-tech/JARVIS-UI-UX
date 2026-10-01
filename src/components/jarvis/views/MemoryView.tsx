@@ -5,12 +5,42 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const memories = [
-  { t: "Owner profile", d: "Gopi — prefers concise briefings, morning digests at 08:00.", tag: "identity", c: "var(--cyan-hud)" },
-  { t: "Interface preferences", d: "Dense readouts, dark console, confirm destructive actions.", tag: "prefs", c: "var(--violet-hud)" },
-  { t: "Infrastructure map", d: "14 nodes, 3 regions, certificates auto-rotated every 60 days.", tag: "systems", c: "var(--emerald-hud)" },
-  { t: "Research corpus", d: "8,412 embedded documents across 42 monitored sources.", tag: "knowledge", c: "var(--blue-hud)" },
-  { t: "Escalation policy", d: "Anything above priority 3 wakes the owner, regardless of hour.", tag: "rules", c: "var(--amber-hud)" },
-  { t: "Recall index", d: "Entity graph with 1.2M edges, compressed nightly.", tag: "vector", c: "var(--pink-hud)" },
+  {
+    t: "Owner profile",
+    d: "Gopi — prefers concise briefings, morning digests at 08:00.",
+    tag: "identity",
+    c: "var(--cyan-hud)",
+  },
+  {
+    t: "Interface preferences",
+    d: "Dense readouts, dark console, confirm destructive actions.",
+    tag: "prefs",
+    c: "var(--violet-hud)",
+  },
+  {
+    t: "Infrastructure map",
+    d: "14 nodes, 3 regions, certificates auto-rotated every 60 days.",
+    tag: "systems",
+    c: "var(--emerald-hud)",
+  },
+  {
+    t: "Research corpus",
+    d: "8,412 embedded documents across 42 monitored sources.",
+    tag: "knowledge",
+    c: "var(--blue-hud)",
+  },
+  {
+    t: "Escalation policy",
+    d: "Anything above priority 3 wakes the owner, regardless of hour.",
+    tag: "rules",
+    c: "var(--amber-hud)",
+  },
+  {
+    t: "Recall index",
+    d: "Entity graph with 1.2M edges, compressed nightly.",
+    tag: "vector",
+    c: "var(--pink-hud)",
+  },
 ];
 
 const tags = ["all", ...Array.from(new Set(memories.map((m) => m.tag)))];
@@ -52,7 +82,9 @@ export function MemoryView() {
             onClick={() => setTag(t)}
             className={cn(
               "rounded-full px-3 py-1 text-[11px] font-bold capitalize transition-all",
-              tag === t ? "neu-inset text-cyan-hud" : "key text-muted-foreground hover:text-foreground",
+              tag === t
+                ? "neu-inset text-cyan-hud"
+                : "key text-muted-foreground hover:text-foreground",
             )}
           >
             {t}

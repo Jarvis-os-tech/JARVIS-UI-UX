@@ -126,9 +126,23 @@ export function ChatMessageItem({ message, onSpeak }: ChatMessageItemProps) {
         {/* JARVIS Avatar */}
         <div className="neu relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-cyan-hud/30">
           <div className="absolute inset-1 animate-ping-ring rounded-xl border border-cyan-hud/30" />
-          <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 drop-shadow-[0_0_8px_var(--cyan-hud)]">
-            <path d="M12 2L2 8l10 6 10-6-10-6z" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
-            <path d="M2 16l10 6 10-6M2 12l10 6 10-6" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-5 w-5 drop-shadow-[0_0_8px_var(--cyan-hud)]"
+          >
+            <path
+              d="M12 2L2 8l10 6 10-6-10-6z"
+              stroke="var(--cyan-hud)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 16l10 6 10-6M2 12l10 6 10-6"
+              stroke="var(--cyan-hud)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
 
@@ -184,7 +198,11 @@ export function ChatMessageItem({ message, onSpeak }: ChatMessageItemProps) {
                   title="Copy message"
                   className="key flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] hover:text-cyan-hud"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-hud" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-hud" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
                   {copied ? "Copied" : "Copy"}
                 </button>
 

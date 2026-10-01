@@ -59,7 +59,9 @@ export function AgentsView() {
                 <i
                   className={cn(
                     "h-1.5 w-1.5 rounded-full",
-                    a.status === "running" ? "led bg-emerald-hud text-emerald-hud" : "bg-muted-foreground/60",
+                    a.status === "running"
+                      ? "led bg-emerald-hud text-emerald-hud"
+                      : "bg-muted-foreground/60",
                   )}
                 />
                 {a.status === "running" ? "ONLINE" : "OFFLINE"}
@@ -72,7 +74,9 @@ export function AgentsView() {
             <div className="mt-auto space-y-2.5">
               <div className="flex items-center justify-between font-mono text-[10.5px] text-muted-foreground">
                 <span>{a.tasks} tasks</span>
-                <span>{a.status === "running" ? `${Math.floor(a.uptimeMin / 60)}h uptime` : "offline"}</span>
+                <span>
+                  {a.status === "running" ? `${Math.floor(a.uptimeMin / 60)}h uptime` : "offline"}
+                </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-[oklch(0.13_0.01_256)] shadow-[inset_0_1px_3px_oklch(0_0_0/75%)]">
                 <i

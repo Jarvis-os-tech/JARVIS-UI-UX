@@ -86,18 +86,10 @@
   /* neumorphic relief */
   --neu-light: oklch(1 0 0 / 8%);
   --neu-dark: oklch(0.08 0.01 256 / 78%);
-  --shadow-raised:
-    -6px -6px 14px var(--neu-light),
-    8px 10px 22px var(--neu-dark);
-  --shadow-raised-sm:
-    -3px -3px 7px var(--neu-light),
-    4px 5px 12px var(--neu-dark);
-  --shadow-inset:
-    inset 4px 5px 12px var(--neu-dark),
-    inset -3px -3px 8px var(--neu-light);
-  --shadow-press:
-    inset 3px 4px 9px var(--neu-dark),
-    inset -2px -2px 6px var(--neu-light);
+  --shadow-raised: -6px -6px 14px var(--neu-light), 8px 10px 22px var(--neu-dark);
+  --shadow-raised-sm: -3px -3px 7px var(--neu-light), 4px 5px 12px var(--neu-dark);
+  --shadow-inset: inset 4px 5px 12px var(--neu-dark), inset -3px -3px 8px var(--neu-light);
+  --shadow-press: inset 3px 4px 9px var(--neu-dark), inset -2px -2px 6px var(--neu-light);
 
   /* skeuomorphic materials */
   --metal: linear-gradient(
@@ -107,11 +99,7 @@
     oklch(0.215 0.012 256) 62%,
     oklch(0.27 0.012 256) 100%
   );
-  --metal-soft: linear-gradient(
-    170deg,
-    oklch(0.29 0.012 256),
-    oklch(0.235 0.012 256)
-  );
+  --metal-soft: linear-gradient(170deg, oklch(0.29 0.012 256), oklch(0.235 0.012 256));
   --glass-tint: linear-gradient(
     155deg,
     oklch(1 0 0 / 10%),
@@ -124,7 +112,12 @@
     oklch(0.155 0.018 250) 60%,
     oklch(0.13 0.015 255) 100%
   );
-  --gradient-aurora: linear-gradient(110deg, var(--cyan-hud), var(--blue-hud) 55%, var(--violet-hud));
+  --gradient-aurora: linear-gradient(
+    110deg,
+    var(--cyan-hud),
+    var(--blue-hud) 55%,
+    var(--violet-hud)
+  );
   --glow-cyan: 0 0 24px color-mix(in oklab, var(--cyan-hud) 30%, transparent);
 }
 
@@ -482,7 +475,9 @@
   border: 1px solid var(--hairline) !important;
   color: var(--foreground) !important;
   backdrop-filter: blur(20px) !important;
-  box-shadow: 0 12px 32px oklch(0.08 0 0 / 60%), 0 0 16px color-mix(in oklab, var(--cyan-hud) 20%, transparent) !important;
+  box-shadow:
+    0 12px 32px oklch(0.08 0 0 / 60%),
+    0 0 16px color-mix(in oklab, var(--cyan-hud) 20%, transparent) !important;
   border-radius: var(--radius-xl) !important;
 }
 

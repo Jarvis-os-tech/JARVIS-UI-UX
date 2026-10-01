@@ -102,7 +102,9 @@ export function useContinuousVoice({
     if (recognitionRef.current) {
       try {
         recognitionRef.current.abort();
-      } catch {}
+      } catch (e) {
+        void e;
+      }
       recognitionRef.current = null;
     }
 
@@ -119,110 +121,117 @@ export function useContinuousVoice({
       try {
         recognitionRef.current.start();
         setIsListening(true);
-      } catch {}
+      } catch (e) {
+        void e;
+      }
     }
   }, []);
 
   // Process completed directive
-  const handleProcessDirective = useCallback(
-    async (spokenText: string) => {
-      if (!spokenText.trim() || !isRunningRef.current) return;
+  const handleProcessDirective = useCallback(async (spokenText: string) => {
+    if (!spokenText.trim() || !isRunningRef.current) return;
 
-      setIsListening(false);
-      setIsThinking(true);
-      setTranscript(spokenText);
+    setIsListening(false);
+    setIsThinking(true);
+    setTranscript(spokenText);
 
-      try {
-        if (recognitionRef.current) {
-          recognitionRef.current.stop();
-        }
-      } catch {}
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    } catch (e) {
+      void e;
+    }
 
-      try {
-        const replyText = await onCommandRef.current(spokenText);
-        if (!isRunningRef.current) return;
+    try {
+      const replyText = await onCommandRef.current(spokenText);
+      if (!isRunningRef.current) return;
 
-        setIsThinking(false);
+      setIsThinking(false);
 
-        // Speak reply
-        if ("speechSynthesis" in window && replyText) {
-          setIsSpeaking(true);
-          setLastSpoken(replyText);
+      // Speak reply
+      if ("speechSynthesis" in window && replyText) {
+        setIsSpeaking(true);
+        setLastSpoken(replyText);
 
-          // Strip markdown symbols for natural TTS speech
-          const cleanText = replyText
-            .replace(/[#*`_~[\]()]/g, " ")
-            .replace(/https?:\/\/\S+/g, "")
-            .replace(/\s+/g, " ")
-            .trim();
+        // Strip markdown symbols for natural TTS speech
+        const cleanText = replyText
+          .replace(/[#*`_~[\]()]/g, " ")
+          .replace(/https?:\/\/\S+/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
 
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          utterance.rate = 1.05;
-          utterance.pitch = 1.0;
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.rate = 1.05;
+        utterance.pitch = 1.0;
 
-          // Select preferred voice if available (e.g. Google UK English Male, Daniel, or Samantha)
-          const voices = window.speechSynthesis.getVoices();
-          const preferredVoice = voices.find(
-            (v) =>
-              v.name.includes("Daniel") ||
-              v.name.includes("Natural") ||
-              v.name.includes("Google UK English Male") ||
-              (v.lang.startsWith("en") && !v.name.includes("Zira")),
-          );
-          if (preferredVoice) utterance.voice = preferredVoice;
+        // Select preferred voice if available (e.g. Google UK English Male, Daniel, or Samantha)
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(
+          (v) =>
+            v.name.includes("Daniel") ||
+            v.name.includes("Natural") ||
+            v.name.includes("Google UK English Male") ||
+            (v.lang.startsWith("en") && !v.name.includes("Zira")),
+        );
+        if (preferredVoice) utterance.voice = preferredVoice;
 
-          utterance.onend = () => {
+        utterance.onend = () => {
+          if (!isRunningRef.current) return;
+          setIsSpeaking(false);
+          setTranscript("");
+          transcriptBufferRef.current = "";
+
+          // Seamlessly resume listening in the loop
+          setTimeout(() => {
             if (!isRunningRef.current) return;
-            setIsSpeaking(false);
-            setTranscript("");
-            transcriptBufferRef.current = "";
-
-            // Seamlessly resume listening in the loop
-            setTimeout(() => {
-              if (!isRunningRef.current) return;
-              try {
-                if (recognitionRef.current) {
-                  recognitionRef.current.start();
-                  setIsListening(true);
-                }
-              } catch {}
-            }, 300);
-          };
-
-          utterance.onerror = () => {
-            if (!isRunningRef.current) return;
-            setIsSpeaking(false);
             try {
               if (recognitionRef.current) {
                 recognitionRef.current.start();
                 setIsListening(true);
               }
-            } catch {}
-          };
+            } catch (e) {
+              void e;
+            }
+          }, 300);
+        };
 
-          window.speechSynthesis.speak(utterance);
-        } else {
-          // If no speech synthesis, resume listening
-          setTranscript("");
-          transcriptBufferRef.current = "";
-          if (recognitionRef.current) {
-            recognitionRef.current.start();
-            setIsListening(true);
-          }
-        }
-      } catch (err: unknown) {
-        setIsThinking(false);
-        setError(err instanceof Error ? err.message : String(err));
-        if (isRunningRef.current && recognitionRef.current) {
+        utterance.onerror = () => {
+          if (!isRunningRef.current) return;
+          setIsSpeaking(false);
           try {
-            recognitionRef.current.start();
-            setIsListening(true);
-          } catch {}
+            if (recognitionRef.current) {
+              recognitionRef.current.start();
+              setIsListening(true);
+            }
+          } catch (e) {
+            void e;
+          }
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // If no speech synthesis, resume listening
+        setTranscript("");
+        transcriptBufferRef.current = "";
+        if (recognitionRef.current) {
+          recognitionRef.current.start();
+          setIsListening(true);
         }
       }
-    },
-    [],
-  );
+    } catch (err: unknown) {
+      setIsThinking(false);
+      setError(err instanceof Error ? err.message : String(err));
+      if (isRunningRef.current && recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+        } catch (e) {
+          void e;
+        }
+      }
+    }
+  }, []);
 
   // Initialize Audio Analyser for reactive visuals
   const initAudioAnalyser = useCallback(async () => {
@@ -230,7 +239,9 @@ export function useContinuousVoice({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       mediaStreamRef.current = stream;
 
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioCtx = new AudioCtx();
       audioContextRef.current = audioCtx;
 
@@ -288,7 +299,9 @@ export function useContinuousVoice({
   const startVoice = useCallback(() => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
-      setError("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      setError(
+        "Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.",
+      );
       return;
     }
 
@@ -353,8 +366,9 @@ export function useContinuousVoice({
         try {
           recognition.start();
           setIsListening(true);
-        } catch {
+        } catch (e) {
           // Ignore restart collisions
+          void e;
         }
       }
     };
@@ -366,7 +380,14 @@ export function useContinuousVoice({
       console.error("Failed to start speech recognition:", err);
       setError("Failed to access microphone.");
     }
-  }, [handleProcessDirective, initAudioAnalyser, silenceThresholdMs, stopVoice, isThinking, isSpeaking]);
+  }, [
+    handleProcessDirective,
+    initAudioAnalyser,
+    silenceThresholdMs,
+    stopVoice,
+    isThinking,
+    isSpeaking,
+  ]);
 
   // Teardown on unmount
   useEffect(() => {

@@ -11,6 +11,7 @@
 **Spec:** [`docs/superpowers/specs/2026-10-01-chatgpt-agui-voice-orbit-design.md`](file:///home/g0pi/Downloads/aurora-ace/docs/superpowers/specs/2026-10-01-chatgpt-agui-voice-orbit-design.md)
 
 ## Global Constraints
+
 - Single persistent chat session (no multi-thread session switching or "New Chat" clutter).
 - Main view middle space replaces the static orbit with the full ChatGPT conversation stream.
 - Voice Orbit runs as an on-demand popup overlay and loops continuously (hands-free: listen -> think -> speak -> listen).
@@ -22,18 +23,21 @@
 ### Task 1: Fix Sonner Toast Styling, Popover Clipping, and TopBar Notifications
 
 **Files:**
+
 - Modify: `src/routes/__root.tsx:1-25`
 - Modify: `src/styles.css:200-240`
 - Modify: `src/components/jarvis/TopBar.tsx:40-155`
 - Modify: `src/components/ui/sonner.tsx:1-24`
 
 **Interfaces:**
+
 - Consumes: `toast` from `sonner`, `useJarvis` notifications store.
 - Produces: Working unclipped notifications popover and sci-fi styled Sonner toast notifications visible above all panels.
 
 - [ ] **Step 1: Import Sonner CSS and configure sci-fi styling in `styles.css`**
 
 Add Sonner styles and custom toast styling in `src/styles.css`:
+
 ```css
 /* Sonner Toast Base & HUD Styling */
 [data-sonner-toaster] {
@@ -46,7 +50,9 @@ Add Sonner styles and custom toast styling in `src/styles.css`:
   border: 1px solid var(--hairline) !important;
   color: var(--foreground) !important;
   backdrop-filter: blur(20px) !important;
-  box-shadow: 0 12px 32px oklch(0.08 0 0 / 60%), 0 0 16px color-mix(in oklab, var(--cyan-hud) 20%, transparent) !important;
+  box-shadow:
+    0 12px 32px oklch(0.08 0 0 / 60%),
+    0 0 16px color-mix(in oklab, var(--cyan-hud) 20%, transparent) !important;
   border-radius: var(--radius-xl) !important;
 }
 
@@ -65,11 +71,14 @@ Add Sonner styles and custom toast styling in `src/styles.css`:
 - [ ] **Step 2: Fix TopBar header clipping and popover z-indexing in `src/components/jarvis/TopBar.tsx`**
 
 Remove `overflow: hidden` caused by `gloss` on `<header>` or move `gloss` overlay to an absolute child pointer-events-none layer, ensuring `<header>` does not clip dropdowns/popovers:
+
 ```tsx
 <header className="bezel relative z-50 flex h-[4.25rem] items-center justify-between gap-4 rounded-2xl px-4 sm:px-5">
   <div className="gloss pointer-events-none absolute inset-0 rounded-2xl" />
 ```
+
 Update `PopoverContent`:
+
 ```tsx
 <PopoverContent
   align="end"
@@ -77,6 +86,7 @@ Update `PopoverContent`:
   className="glass z-[9999] w-[min(24rem,calc(100vw-2rem))] border-hairline bg-[oklch(0.24_0.013_256/_95%)] p-0 shadow-2xl backdrop-blur-2xl"
 >
 ```
+
 Allow clicking a notification to navigate to the associated view or dispatch toast.
 
 - [ ] **Step 3: Run build to verify styling and header changes**
@@ -96,12 +106,15 @@ git commit -m "fix(ui): resolve sonner toast styling and topbar popover clipping
 ### Task 2: Implement AG-UI Protocol Engine & Event Types
 
 **Files:**
+
 - Create: `src/lib/agui-types.ts`
 - Create: `src/lib/agui-client.ts`
 
 **Interfaces:**
+
 - Consumes: None (base protocol definitions)
 - Produces:
+
   ```ts
   export type AGUIEvent =
     | { type: "RunStarted"; runId: string; threadId: string; timestamp: number }
@@ -129,6 +142,7 @@ Define all event interfaces, message structures, tool call payloads, and state d
 - [ ] **Step 2: Write `src/lib/agui-client.ts` with autonomous simulator & SSE support**
 
 Implement `runSimulatedAGUIAgent(directive, state, emit)`:
+
 - Emits `RunStarted`
 - Inspects directive for tool triggers (e.g. "mission", "diagnostics", "agent", "scan", "workflow", "clear")
 - Emits `StepStarted` (e.g. `"Decomposing objective"`, `"Probing agent swarm"`)
@@ -153,13 +167,16 @@ git commit -m "feat(agui): implement AG-UI protocol event types and client engin
 ### Task 3: Continuous Holographic Voice Orbit Modal & Audio Loop
 
 **Files:**
+
 - Create: `src/hooks/useContinuousVoice.ts`
 - Create: `src/components/jarvis/VoiceOrbitModal.tsx`
 - Modify: `src/components/jarvis/JarvisProvider.tsx`
 
 **Interfaces:**
+
 - Consumes: `useJarvis().sendMessage`, Web Speech API (`webkitSpeechRecognition` / `SpeechRecognition`), `speechSynthesis`.
 - Produces:
+
   ```ts
   export function useContinuousVoice(onCommand: (text: string) => Promise<string>): {
     isListening: boolean;
@@ -176,6 +193,7 @@ git commit -m "feat(agui): implement AG-UI protocol event types and client engin
 - [ ] **Step 1: Implement `src/hooks/useContinuousVoice.ts`**
 
 Features:
+
 - Browser SpeechRecognition with `continuous: true` and `interimResults: true`.
 - Real-time Web Audio API `AudioContext` + `AnalyserNode` monitoring microphone volume and outputting normalized `audioLevel` (0 to 1).
 - Automatic silence timeout detection: when user stops speaking for 1200ms, triggers `onCommand(transcript)`.
@@ -187,6 +205,7 @@ Features:
 - [ ] **Step 2: Implement `src/components/jarvis/VoiceOrbitModal.tsx`**
 
 Design:
+
 - Holographic Stark Arc Reactor / Friday modal overlay (`z-[1000]`) with frosted glass backdrop blur.
 - Multi-ring rotating SVG gyro with radial ticks, glowing energy arcs, and pulsing cyan/gold core.
 - SVG wave lines and equalizer bars scaled dynamically by `audioLevel`.
@@ -210,6 +229,7 @@ git commit -m "feat(voice): create continuous holographic voice orbit modal"
 ### Task 4: ChatGPT Chat Interface & In-Stream Generative Tool Cards
 
 **Files:**
+
 - Create: `src/components/jarvis/ThoughtAccordion.tsx`
 - Create: `src/components/jarvis/ToolExecutionCard.tsx`
 - Create: `src/components/jarvis/ApprovalCard.tsx`
@@ -218,12 +238,14 @@ git commit -m "feat(voice): create continuous holographic voice orbit modal"
 - Create: `src/components/jarvis/ChatView.tsx`
 
 **Interfaces:**
+
 - Consumes: AG-UI Message types, `useJarvis()`, `openVoiceOrbit()`.
 - Produces: Full-featured ChatGPT conversation stream replacing the static middle orbit.
 
 - [ ] **Step 1: Implement `ThoughtAccordion.tsx`**
 
 Collapsible "Thought Process" block:
+
 - Pulsing animated cyan spark when active (`StepStarted`).
 - List of thought step titles (e.g. `1. Scanning memory database`, `2. Formulating response`).
 - Execution duration timer badge.
@@ -277,12 +299,14 @@ git commit -m "feat(chat): build ChatGPT stream with AG-UI generative tool cards
 ### Task 5: Wire AG-UI Engine, Voice Orbit & ChatView into Jarvis App
 
 **Files:**
+
 - Modify: `src/components/jarvis/JarvisProvider.tsx`
 - Modify: `src/components/jarvis/views/DashboardView.tsx`
 - Modify: `src/components/jarvis/JarvisApp.tsx`
 - Modify: `src/components/jarvis/Sidebar.tsx`
 
 **Interfaces:**
+
 - Consumes: `ChatView`, `VoiceOrbitModal`, `aguiClient`.
 - Produces: Complete end-to-end user experience with ChatGPT main chat, persistent session, continuous voice orbit, and AG-UI event handling.
 
@@ -296,11 +320,14 @@ git commit -m "feat(chat): build ChatGPT stream with AG-UI generative tool cards
 - [ ] **Step 2: Replace middle orbit in `src/components/jarvis/views/DashboardView.tsx`**
 
 Replace:
+
 ```tsx
 <OrbStage />
 <Conversation />
 ```
+
 With:
+
 ```tsx
 <ChatView onOpenVoice={() => setVoiceModalOpen(true)} />
 ```
@@ -330,6 +357,7 @@ git commit -m "feat(core): integrate AG-UI chat view and continuous voice orbit 
 ### Task 6: Formatting, Linting & End-to-End Verification
 
 **Files:**
+
 - Modify: Codebase formatting fixes (`eslint`, `prettier`)
 
 - [ ] **Step 1: Run linter and formatting auto-fix**
@@ -343,6 +371,7 @@ Run: `npm run build`
 Expected: Build passes with 0 errors.
 
 - [ ] **Step 3: Verify all user requirements**
+
 1. Middle static orbit is completely removed from the main view.
 2. Full ChatGPT-style conversational stream is rendered with auto-scroll and prompt deck.
 3. Typing directives triggers AG-UI streaming with reasoning accordions and tool cards.

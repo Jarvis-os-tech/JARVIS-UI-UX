@@ -6,7 +6,17 @@ import { useJarvis, useNow } from "./JarvisProvider";
 import { timeAgo } from "@/lib/jarvis-data";
 import { cn } from "@/lib/utils";
 
-function Gauge3({ label, value, unit, color }: { label: string; value: number; unit?: string; color: string }) {
+function Gauge3({
+  label,
+  value,
+  unit,
+  color,
+}: {
+  label: string;
+  value: number;
+  unit?: string;
+  color: string;
+}) {
   return (
     <div className="neu-inset flex items-center gap-2.5 rounded-xl px-3 py-1.5">
       <span className="text-[10px] font-bold tracking-[0.18em] text-muted-foreground">{label}</span>
@@ -50,9 +60,23 @@ export function TopBar() {
       <div className="flex min-w-0 items-center gap-3">
         <span className="neu relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl">
           <span className="absolute inset-1 animate-ping-ring rounded-xl border border-cyan-hud/40" />
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 drop-shadow-[0_0_8px_var(--cyan-hud)]">
-            <path d="M12 2L2 8l10 6 10-6-10-6z" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
-            <path d="M2 16l10 6 10-6M2 12l10 6 10-6" stroke="var(--cyan-hud)" strokeWidth="1.6" strokeLinejoin="round" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-6 w-6 drop-shadow-[0_0_8px_var(--cyan-hud)]"
+          >
+            <path
+              d="M12 2L2 8l10 6 10-6-10-6z"
+              stroke="var(--cyan-hud)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 16l10 6 10-6M2 12l10 6 10-6"
+              stroke="var(--cyan-hud)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
         <span className="min-w-0">
@@ -89,7 +113,9 @@ export function TopBar() {
           title={telemetryOn ? "Live telemetry on" : "Telemetry frozen"}
           className={cn(
             "key grid h-10 w-10 place-items-center rounded-xl",
-            telemetryOn ? "text-emerald-hud glow-ring" : "text-muted-foreground hover:text-foreground",
+            telemetryOn
+              ? "text-emerald-hud glow-ring"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           <Activity className="h-4 w-4" />
@@ -115,7 +141,9 @@ export function TopBar() {
             className="glass z-[9999] w-[min(24rem,calc(100vw-2rem))] border-hairline bg-[oklch(0.24_0.013_256/_95%)] p-0 shadow-2xl backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
-              <span className="text-xs font-bold tracking-[0.2em] text-foreground">NOTIFICATIONS</span>
+              <span className="text-xs font-bold tracking-[0.2em] text-foreground">
+                NOTIFICATIONS
+              </span>
               <button
                 onClick={clearNotifications}
                 className="key rounded-lg px-2.5 py-1 text-[11px] font-semibold text-cyan-hud"
@@ -140,7 +168,9 @@ export function TopBar() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs leading-relaxed text-foreground">{n.title}</p>
-                    <p className="mt-1 font-mono text-[10px] text-muted-foreground">{timeAgo(n.at)}</p>
+                    <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                      {timeAgo(n.at)}
+                    </p>
                   </div>
                   <button
                     onClick={(e) => {

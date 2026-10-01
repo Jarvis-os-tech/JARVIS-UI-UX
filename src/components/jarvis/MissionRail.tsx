@@ -19,7 +19,9 @@ export function MissionRail() {
     <aside className="bezel flex min-h-0 shrink-0 flex-col overflow-hidden rounded-2xl xl:w-[21rem]">
       <div className="flex items-center justify-between border-b border-[oklch(0_0_0/35%)] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="neu-sm grid h-9 w-9 place-items-center rounded-xl text-cyan-hud">🎯</span>
+          <span className="neu-sm grid h-9 w-9 place-items-center rounded-xl text-cyan-hud">
+            🎯
+          </span>
           <span className="etched text-[12px] font-bold tracking-[0.16em]">MISSION RAIL</span>
         </div>
         <button
@@ -31,7 +33,9 @@ export function MissionRail() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto p-3.5">
-        <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground">ACTIVE MISSIONS</p>
+        <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground">
+          ACTIVE MISSIONS
+        </p>
         {shown.map((m) => {
           const s = statusLabel[m.status];
           return (

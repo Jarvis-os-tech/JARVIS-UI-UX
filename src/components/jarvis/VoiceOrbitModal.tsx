@@ -118,7 +118,9 @@ export function VoiceOrbitModal({
                   FRIDAY MK-VII
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">Continuous hands-free conversation loop</p>
+              <p className="text-[11px] text-muted-foreground">
+                Continuous hands-free conversation loop
+              </p>
             </div>
           </div>
 
@@ -244,7 +246,11 @@ export function VoiceOrbitModal({
           {[0.25, 0.55, 0.9, 0.4, 0.75, 1, 0.6, 0.8, 0.45, 0.3].map((heightMod, idx) => {
             const barHeight = Math.max(
               4,
-              Math.min(28, (isListening || isSpeaking ? audioLevel * 28 * heightMod : 4) + (isThinking ? 12 : 2)),
+              Math.min(
+                28,
+                (isListening || isSpeaking ? audioLevel * 28 * heightMod : 4) +
+                  (isThinking ? 12 : 2),
+              ),
             );
             return (
               <span
@@ -266,7 +272,10 @@ export function VoiceOrbitModal({
             className="h-2 w-2 rounded-full animate-ping"
             style={{ backgroundColor: stateTheme.accent }}
           />
-          <span className="font-mono text-xs font-bold tracking-wider" style={{ color: stateTheme.accent }}>
+          <span
+            className="font-mono text-xs font-bold tracking-wider"
+            style={{ color: stateTheme.accent }}
+          >
             [{stateTheme.status}]
           </span>
           <span className="text-[11px] text-muted-foreground">{stateTheme.desc}</span>
@@ -290,7 +299,8 @@ export function VoiceOrbitModal({
             </p>
           ) : (
             <p className="text-center text-xs text-muted-foreground italic">
-              Speak a directive... (e.g. &ldquo;Run cluster diagnostic&rdquo;, &ldquo;Deploy mission alpha&rdquo;, &ldquo;Status report&rdquo;)
+              Speak a directive... (e.g. &ldquo;Run cluster diagnostic&rdquo;, &ldquo;Deploy mission
+              alpha&rdquo;, &ldquo;Status report&rdquo;)
             </p>
           )}
         </div>
@@ -308,7 +318,11 @@ export function VoiceOrbitModal({
                   : "text-muted-foreground",
               )}
             >
-              {isListening ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4 text-destructive" />}
+              {isListening ? (
+                <Mic className="h-4 w-4" />
+              ) : (
+                <MicOff className="h-4 w-4 text-destructive" />
+              )}
               {isListening ? "Mute Mic" : "Unmute Mic"}
             </button>
 

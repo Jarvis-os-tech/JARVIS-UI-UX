@@ -26,9 +26,7 @@ export function ToolExecutionCard({ toolCall }: ToolExecutionCardProps) {
               <Terminal className="h-3.5 w-3.5" />
             )}
           </span>
-          <span className="font-semibold text-foreground tracking-wide">
-            {toolCall.tool}
-          </span>
+          <span className="font-semibold text-foreground tracking-wide">{toolCall.tool}</span>
           <span
             className={cn(
               "rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",

@@ -22,10 +22,18 @@ interface SimulatedPayload {
   textChunks: string[];
 }
 
-function generateSimulatedResponse(directive: string, stateContext: Record<string, unknown>): SimulatedPayload {
+function generateSimulatedResponse(
+  directive: string,
+  stateContext: Record<string, unknown>,
+): SimulatedPayload {
   const lower = directive.toLowerCase().trim();
 
-  if (lower.includes("mission") || lower.includes("operation") || lower.includes("deploy") || lower.includes("task")) {
+  if (
+    lower.includes("mission") ||
+    lower.includes("operation") ||
+    lower.includes("deploy") ||
+    lower.includes("task")
+  ) {
     const missionId = `m-${uid()}`;
     const missionTitle = directive.length > 50 ? directive.slice(0, 48) + "..." : directive;
     return {
@@ -75,7 +83,12 @@ function generateSimulatedResponse(directive: string, stateContext: Record<strin
     };
   }
 
-  if (lower.includes("diagnostic") || lower.includes("scan") || lower.includes("health") || lower.includes("telemetry")) {
+  if (
+    lower.includes("diagnostic") ||
+    lower.includes("scan") ||
+    lower.includes("health") ||
+    lower.includes("telemetry")
+  ) {
     return {
       thoughts: [
         "Initiating cluster-wide heartbeat query",
@@ -116,7 +129,12 @@ function generateSimulatedResponse(directive: string, stateContext: Record<strin
     };
   }
 
-  if (lower.includes("agent") || lower.includes("swarm") || lower.includes("worker") || lower.includes("bot")) {
+  if (
+    lower.includes("agent") ||
+    lower.includes("swarm") ||
+    lower.includes("worker") ||
+    lower.includes("bot")
+  ) {
     return {
       thoughts: [
         "Querying agent swarm coordination state",
@@ -149,7 +167,12 @@ function generateSimulatedResponse(directive: string, stateContext: Record<strin
     };
   }
 
-  if (lower.includes("memory") || lower.includes("recall") || lower.includes("search") || lower.includes("find")) {
+  if (
+    lower.includes("memory") ||
+    lower.includes("recall") ||
+    lower.includes("search") ||
+    lower.includes("find")
+  ) {
     return {
       thoughts: [
         "Parsing search query embedding vector",
@@ -362,7 +385,9 @@ export class DefaultAGUIClient implements AGUIClient {
     });
 
     if (!response.ok || !response.body) {
-      throw new Error(`AG-UI server responded with status: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `AG-UI server responded with status: ${response.status} ${response.statusText}`,
+      );
     }
 
     const reader = response.body.getReader();

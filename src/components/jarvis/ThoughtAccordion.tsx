@@ -21,7 +21,12 @@ export function ThoughtAccordion({ thoughts, isStreaming }: ThoughtAccordionProp
         className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-xs transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2 text-muted-foreground">
-          <BrainCircuit className={cn("h-3.5 w-3.5", isStreaming ? "animate-pulse text-cyan-hud" : "text-muted-foreground")} />
+          <BrainCircuit
+            className={cn(
+              "h-3.5 w-3.5",
+              isStreaming ? "animate-pulse text-cyan-hud" : "text-muted-foreground",
+            )}
+          />
           <span className="font-semibold tracking-wide text-foreground">
             Thought Process ({thoughts.length} step{thoughts.length > 1 ? "s" : ""})
           </span>
@@ -41,7 +46,10 @@ export function ThoughtAccordion({ thoughts, isStreaming }: ThoughtAccordionProp
         <div className="border-t border-hairline px-3.5 py-2.5">
           <ul className="space-y-2">
             {thoughts.map((step, idx) => (
-              <li key={step.id || idx} className="flex items-start gap-2.5 text-[11.5px] leading-relaxed">
+              <li
+                key={step.id || idx}
+                className="flex items-start gap-2.5 text-[11.5px] leading-relaxed"
+              >
                 <span className="mt-0.5 text-cyan-hud">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-hud" />
                 </span>

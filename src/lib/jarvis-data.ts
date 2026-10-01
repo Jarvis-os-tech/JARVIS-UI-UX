@@ -44,13 +44,7 @@ export type Notification = {
 export type LogEntry = { id: string; text: string; at: number };
 
 export type ViewKey =
-  | "dashboard"
-  | "memory"
-  | "agents"
-  | "connectors"
-  | "mission"
-  | "workflows"
-  | "settings";
+  "dashboard" | "memory" | "agents" | "connectors" | "mission" | "workflows" | "settings";
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -167,9 +161,27 @@ export const seedMissions: Mission[] = [
 ];
 
 export const seedNotifications: Notification[] = [
-  { id: "n1", icon: "🛰", title: "Research Scout finished sweeping 42 sources.", at: Date.now() - 240_000, read: false },
-  { id: "n2", icon: "⚠", title: "Sentinel is offline — autonomous defence paused.", at: Date.now() - 900_000, read: false },
-  { id: "n3", icon: "✔", title: "Infrastructure health check completed cleanly.", at: Date.now() - 3_600_000, read: false },
+  {
+    id: "n1",
+    icon: "🛰",
+    title: "Research Scout finished sweeping 42 sources.",
+    at: Date.now() - 240_000,
+    read: false,
+  },
+  {
+    id: "n2",
+    icon: "⚠",
+    title: "Sentinel is offline — autonomous defence paused.",
+    at: Date.now() - 900_000,
+    read: false,
+  },
+  {
+    id: "n3",
+    icon: "✔",
+    title: "Infrastructure health check completed cleanly.",
+    at: Date.now() - 3_600_000,
+    read: false,
+  },
 ];
 
 export const missionIcons = ["🎯", "🛰", "⚡", "🧭", "✉", "☀", "🔭", "🧪"];

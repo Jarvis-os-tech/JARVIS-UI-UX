@@ -29,7 +29,8 @@ export function MissionControlView() {
         <div className="min-w-0">
           <h1 className="font-display text-2xl font-bold tracking-wide">Mission Control</h1>
           <p className="mt-1 max-w-md text-xs text-muted-foreground">
-            Direct oversight of every autonomous operation — dispatch, pause, resume, complete or abort.
+            Direct oversight of every autonomous operation — dispatch, pause, resume, complete or
+            abort.
           </p>
         </div>
         <button
@@ -108,12 +109,17 @@ export function MissionControlView() {
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="flex min-h-0 flex-col gap-2.5 overflow-y-auto pb-4 pr-1">
           {list.length === 0 && (
-            <p className="py-10 text-center text-xs text-muted-foreground">No missions in this state.</p>
+            <p className="py-10 text-center text-xs text-muted-foreground">
+              No missions in this state.
+            </p>
           )}
           {list.map((m) => {
             const s = label[m.status];
             return (
-              <article key={m.id} className="neu gloss animate-rise-in flex gap-3.5 rounded-2xl p-4">
+              <article
+                key={m.id}
+                className="neu gloss animate-rise-in flex gap-3.5 rounded-2xl p-4"
+              >
                 <span
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-base"
                   style={{
@@ -132,7 +138,9 @@ export function MissionControlView() {
                       {timeAgo(m.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">{m.desc}</p>
+                  <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+                    {m.desc}
+                  </p>
                   <div className="mt-2.5 flex items-center gap-3">
                     <span className="h-1 flex-1 overflow-hidden rounded-full bg-foreground/8">
                       <i
@@ -151,15 +159,38 @@ export function MissionControlView() {
                     {m.status !== "done" && m.status !== "cancelled" && (
                       <>
                         {m.status === "progress" ? (
-                          <Act icon={<Pause className="h-3 w-3" />} label="Pause" onClick={() => setMissionStatus(m.id, "paused")} />
+                          <Act
+                            icon={<Pause className="h-3 w-3" />}
+                            label="Pause"
+                            onClick={() => setMissionStatus(m.id, "paused")}
+                          />
                         ) : (
-                          <Act icon={<Play className="h-3 w-3" />} label="Resume" onClick={() => setMissionStatus(m.id, "progress")} />
+                          <Act
+                            icon={<Play className="h-3 w-3" />}
+                            label="Resume"
+                            onClick={() => setMissionStatus(m.id, "progress")}
+                          />
                         )}
-                        <Act icon={<Check className="h-3 w-3" />} label="Complete" tone="emerald" onClick={() => setMissionStatus(m.id, "done")} />
-                        <Act icon={<X className="h-3 w-3" />} label="Abort" tone="destructive" onClick={() => setMissionStatus(m.id, "cancelled")} />
+                        <Act
+                          icon={<Check className="h-3 w-3" />}
+                          label="Complete"
+                          tone="emerald"
+                          onClick={() => setMissionStatus(m.id, "done")}
+                        />
+                        <Act
+                          icon={<X className="h-3 w-3" />}
+                          label="Abort"
+                          tone="destructive"
+                          onClick={() => setMissionStatus(m.id, "cancelled")}
+                        />
                       </>
                     )}
-                    <Act icon={<Trash2 className="h-3 w-3" />} label="Remove" tone="destructive" onClick={() => removeMission(m.id)} />
+                    <Act
+                      icon={<Trash2 className="h-3 w-3" />}
+                      label="Remove"
+                      tone="destructive"
+                      onClick={() => removeMission(m.id)}
+                    />
                   </div>
                 </div>
               </article>
@@ -175,7 +206,9 @@ export function MissionControlView() {
             {log.map((l) => (
               <div key={l.id} className="border-l border-cyan-hud/30 pl-3">
                 <p className="text-[11.5px] leading-snug text-foreground">{l.text}</p>
-                <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">{timeAgo(l.at)}</p>
+                <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                  {timeAgo(l.at)}
+                </p>
               </div>
             ))}
           </div>
@@ -201,9 +234,12 @@ function Act({
       onClick={onClick}
       className={cn(
         "flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors",
-        tone === "cyan" && "border-border text-muted-foreground hover:border-cyan-hud/50 hover:text-cyan-hud",
-        tone === "emerald" && "border-border text-muted-foreground hover:border-emerald-hud/50 hover:text-emerald-hud",
-        tone === "destructive" && "border-border text-muted-foreground hover:border-destructive/50 hover:text-destructive",
+        tone === "cyan" &&
+          "border-border text-muted-foreground hover:border-cyan-hud/50 hover:text-cyan-hud",
+        tone === "emerald" &&
+          "border-border text-muted-foreground hover:border-emerald-hud/50 hover:text-emerald-hud",
+        tone === "destructive" &&
+          "border-border text-muted-foreground hover:border-destructive/50 hover:text-destructive",
       )}
     >
       {icon}

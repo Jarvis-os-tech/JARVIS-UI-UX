@@ -50,7 +50,11 @@ function useJarvisState() {
   const [notifications, setNotifications] = useState<Notification[]>(seedNotifications);
   const [log, setLog] = useState<LogEntry[]>([
     { id: uid(), text: "Orchestrator core online — 4 agents linked.", at: Date.now() - 600_000 },
-    { id: uid(), text: "Mission “Infrastructure Health Check” completed.", at: Date.now() - 3_500_000 },
+    {
+      id: uid(),
+      text: "Mission “Infrastructure Health Check” completed.",
+      at: Date.now() - 3_500_000,
+    },
   ]);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -96,7 +100,10 @@ function useJarvisState() {
       setAgents((prev) =>
         prev.map((a) =>
           a.status === "running"
-            ? { ...a, load: Math.max(8, Math.min(96, a.load + Math.round((Math.random() - 0.5) * 14))) }
+            ? {
+                ...a,
+                load: Math.max(8, Math.min(96, a.load + Math.round((Math.random() - 0.5) * 14))),
+              }
             : a,
         ),
       );
@@ -109,7 +116,9 @@ function useJarvisState() {
   }, []);
 
   const pushNotification = useCallback((icon: string, title: string) => {
-    setNotifications((n) => [{ id: uid(), icon, title, at: Date.now(), read: false }, ...n].slice(0, 30));
+    setNotifications((n) =>
+      [{ id: uid(), icon, title, at: Date.now(), read: false }, ...n].slice(0, 30),
+    );
   }, []);
 
   /* ------- autonomous mission progress ------- */
@@ -185,7 +194,8 @@ function useJarvisState() {
         title,
         desc: desc || "Planned by the orchestrator core.",
         icon: missionIcons[Math.floor(Math.random() * missionIcons.length)] ?? "🎯",
-        accent: missionAccents[Math.floor(Math.random() * missionAccents.length)] ?? "var(--cyan-hud)",
+        accent:
+          missionAccents[Math.floor(Math.random() * missionAccents.length)] ?? "var(--cyan-hud)",
         status: "progress",
         progress: 0,
         createdAt: Date.now(),
@@ -232,7 +242,10 @@ function useJarvisState() {
       const createMatch = q.match(/^(?:create|new|dispatch|start)\s+mission[:\s]+(.+)$/);
       if (createMatch?.[1]) {
         const title = createMatch[1].trim();
-        createMission(title.charAt(0).toUpperCase() + title.slice(1), "Dispatched from the console.");
+        createMission(
+          title.charAt(0).toUpperCase() + title.slice(1),
+          "Dispatched from the console.",
+        );
         return { reply: `Mission “${title}” dispatched and now running.`, confirm: true };
       }
 
@@ -446,7 +459,11 @@ function useJarvisState() {
                   toast.success(`Mission initialized: ${nm.title}`);
                 }
                 if (event.patch.telemetrySync) {
-                  const ts = event.patch.telemetrySync as { cpu?: number; ram?: number; net?: number };
+                  const ts = event.patch.telemetrySync as {
+                    cpu?: number;
+                    ram?: number;
+                    net?: number;
+                  };
                   if (ts.cpu) setCpu(ts.cpu);
                   if (ts.ram) setRam(ts.ram);
                   if (ts.net) setNet(ts.net);
@@ -468,9 +485,7 @@ function useJarvisState() {
               case "RunFinished": {
                 setAguiMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === assistantMsgId
-                      ? { ...msg, isStreaming: false }
-                      : msg,
+                    msg.id === assistantMsgId ? { ...msg, isStreaming: false } : msg,
                   ),
                 );
                 setIsStreaming(false);
@@ -517,9 +532,7 @@ function useJarvisState() {
       abortControllerRef.current = null;
     }
     setIsStreaming(false);
-    setAguiMessages((prev) =>
-      prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m)),
-    );
+    setAguiMessages((prev) => prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m)));
     toast("Generation halted by user");
   }, []);
 

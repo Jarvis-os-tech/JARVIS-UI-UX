@@ -6,12 +6,48 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const seed = [
-  { id: "c1", n: "Calendar MCP", d: "Read/write scheduling across all connected calendars.", on: true, c: "var(--cyan-hud)" },
-  { id: "c2", n: "Mail Gateway", d: "Triage, draft and send on your behalf with approval gates.", on: true, c: "var(--violet-hud)" },
-  { id: "c3", n: "Web Browser", d: "Headless browsing, extraction and form automation.", on: true, c: "var(--blue-hud)" },
-  { id: "c4", n: "Home Systems", d: "Lights, climate, locks and energy telemetry.", on: false, c: "var(--emerald-hud)" },
-  { id: "c5", n: "Code Repository", d: "Read repos, open pull requests, run CI checks.", on: true, c: "var(--amber-hud)" },
-  { id: "c6", n: "Finance Feed", d: "Market data, portfolio snapshots and alerts.", on: false, c: "var(--pink-hud)" },
+  {
+    id: "c1",
+    n: "Calendar MCP",
+    d: "Read/write scheduling across all connected calendars.",
+    on: true,
+    c: "var(--cyan-hud)",
+  },
+  {
+    id: "c2",
+    n: "Mail Gateway",
+    d: "Triage, draft and send on your behalf with approval gates.",
+    on: true,
+    c: "var(--violet-hud)",
+  },
+  {
+    id: "c3",
+    n: "Web Browser",
+    d: "Headless browsing, extraction and form automation.",
+    on: true,
+    c: "var(--blue-hud)",
+  },
+  {
+    id: "c4",
+    n: "Home Systems",
+    d: "Lights, climate, locks and energy telemetry.",
+    on: false,
+    c: "var(--emerald-hud)",
+  },
+  {
+    id: "c5",
+    n: "Code Repository",
+    d: "Read repos, open pull requests, run CI checks.",
+    on: true,
+    c: "var(--amber-hud)",
+  },
+  {
+    id: "c6",
+    n: "Finance Feed",
+    d: "Market data, portfolio snapshots and alerts.",
+    on: false,
+    c: "var(--pink-hud)",
+  },
 ];
 
 export function ConnectorsView() {
@@ -38,7 +74,9 @@ export function ConnectorsView() {
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display etched text-2xl font-bold tracking-wide">MCPs &amp; Connectors</h1>
+          <h1 className="font-display etched text-2xl font-bold tracking-wide">
+            MCPs &amp; Connectors
+          </h1>
           <p className="mt-1 text-xs text-muted-foreground">
             Every tool the swarm can reach — {online} of {items.length} ports live.
           </p>

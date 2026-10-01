@@ -13,7 +13,10 @@ interface PromptBarProps {
 const SUGGESTIONS = [
   { label: "System Diagnostic", prompt: "Run complete system diagnostic across active nodes" },
   { label: "Status Report", prompt: "Summarize active agent status, memory, and telemetry" },
-  { label: "Deploy Mission", prompt: "Deploy autonomous mission to scan and index intelligence feeds" },
+  {
+    label: "Deploy Mission",
+    prompt: "Deploy autonomous mission to scan and index intelligence feeds",
+  },
   { label: "Query Swarm", prompt: "Inspect agent swarm workloads and queued execution tasks" },
 ];
 

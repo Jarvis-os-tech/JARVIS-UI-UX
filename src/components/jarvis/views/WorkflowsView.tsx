@@ -4,10 +4,34 @@ import { useJarvis } from "../JarvisProvider";
 import { toast } from "sonner";
 
 const seed = [
-  { id: "w1", n: "Morning Digest", steps: ["Collect telemetry", "Summarise overnight events", "Publish briefing"], runs: 128, c: "var(--amber-hud)" },
-  { id: "w2", n: "Inbox Triage", steps: ["Classify mail", "Draft replies", "Escalate P1+"], runs: 942, c: "var(--violet-hud)" },
-  { id: "w3", n: "Intel Sweep", steps: ["Crawl sources", "Deduplicate", "Rank by signal"], runs: 216, c: "var(--blue-hud)" },
-  { id: "w4", n: "Night Watch", steps: ["Probe nodes", "Rotate keys", "Report anomalies"], runs: 74, c: "var(--emerald-hud)" },
+  {
+    id: "w1",
+    n: "Morning Digest",
+    steps: ["Collect telemetry", "Summarise overnight events", "Publish briefing"],
+    runs: 128,
+    c: "var(--amber-hud)",
+  },
+  {
+    id: "w2",
+    n: "Inbox Triage",
+    steps: ["Classify mail", "Draft replies", "Escalate P1+"],
+    runs: 942,
+    c: "var(--violet-hud)",
+  },
+  {
+    id: "w3",
+    n: "Intel Sweep",
+    steps: ["Crawl sources", "Deduplicate", "Rank by signal"],
+    runs: 216,
+    c: "var(--blue-hud)",
+  },
+  {
+    id: "w4",
+    n: "Night Watch",
+    steps: ["Probe nodes", "Rotate keys", "Report anomalies"],
+    runs: 74,
+    c: "var(--emerald-hud)",
+  },
 ];
 
 export function WorkflowsView() {
@@ -29,7 +53,13 @@ export function WorkflowsView() {
           e.preventDefault();
           if (!name.trim()) return;
           setItems((prev) => [
-            { id: Math.random().toString(36).slice(2), n: name.trim(), steps: ["Plan", "Execute", "Report"], runs: 0, c: "var(--cyan-hud)" },
+            {
+              id: Math.random().toString(36).slice(2),
+              n: name.trim(),
+              steps: ["Plan", "Execute", "Report"],
+              runs: 0,
+              c: "var(--cyan-hud)",
+            },
             ...prev,
           ]);
           pushLog(`Workflow “${name.trim()}” forged.`);
@@ -46,7 +76,10 @@ export function WorkflowsView() {
             className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <button type="submit" className="key flex items-center gap-2 rounded-xl px-4 text-[12.5px] font-bold text-cyan-hud glow-ring">
+        <button
+          type="submit"
+          className="key flex items-center gap-2 rounded-xl px-4 text-[12.5px] font-bold text-cyan-hud glow-ring"
+        >
           <Plus className="h-4 w-4" /> Forge
         </button>
       </form>
@@ -55,7 +88,10 @@ export function WorkflowsView() {
         {items.map((w) => (
           <article key={w.id} className="neu gloss animate-rise-in flex flex-col rounded-2xl p-4">
             <div className="flex items-center gap-3">
-              <span className="neu-inset grid h-11 w-11 place-items-center rounded-xl" style={{ color: w.c }}>
+              <span
+                className="neu-inset grid h-11 w-11 place-items-center rounded-xl"
+                style={{ color: w.c }}
+              >
                 <Workflow className="h-4.5 w-4.5" />
               </span>
               <div className="min-w-0">
@@ -66,7 +102,10 @@ export function WorkflowsView() {
 
             <ol className="mt-3 space-y-1.5">
               {w.steps.map((s, i) => (
-                <li key={s} className="flex items-center gap-2.5 text-[11.5px] text-muted-foreground">
+                <li
+                  key={s}
+                  className="flex items-center gap-2.5 text-[11.5px] text-muted-foreground"
+                >
                   <span className="neu-inset grid h-5 w-5 shrink-0 place-items-center rounded-md font-mono text-[10px] text-cyan-hud">
                     {i + 1}
                   </span>
@@ -78,7 +117,9 @@ export function WorkflowsView() {
             <button
               onClick={() => {
                 createMission(w.n, `Routine executing: ${w.steps.join(" → ")}.`);
-                setItems((prev) => prev.map((x) => (x.id === w.id ? { ...x, runs: x.runs + 1 } : x)));
+                setItems((prev) =>
+                  prev.map((x) => (x.id === w.id ? { ...x, runs: x.runs + 1 } : x)),
+                );
               }}
               className="key mt-4 flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold text-cyan-hud"
             >

@@ -83,9 +83,30 @@ export function OrbStage() {
         </g>
 
         {/* glass dome + core */}
-        <circle cx="380" cy="256" r="150" fill="url(#coreGrad)" filter="url(#soft)" className="animate-core-pulse" />
-        <circle cx="380" cy="256" r="120" fill="url(#domeGrad)" stroke="oklch(1 0 0 / 14%)" strokeWidth="1.5" />
-        <ellipse cx="345" cy="196" rx="52" ry="26" fill="oklch(1 0 0 / 9%)" transform="rotate(-24 345 196)" />
+        <circle
+          cx="380"
+          cy="256"
+          r="150"
+          fill="url(#coreGrad)"
+          filter="url(#soft)"
+          className="animate-core-pulse"
+        />
+        <circle
+          cx="380"
+          cy="256"
+          r="120"
+          fill="url(#domeGrad)"
+          stroke="oklch(1 0 0 / 14%)"
+          strokeWidth="1.5"
+        />
+        <ellipse
+          cx="345"
+          cy="196"
+          rx="52"
+          ry="26"
+          fill="oklch(1 0 0 / 9%)"
+          transform="rotate(-24 345 196)"
+        />
 
         {/* load arc */}
         <circle
@@ -156,7 +177,9 @@ export function OrbStage() {
               className="w-[3px] rounded-full bg-cyan-hud shadow-[0_0_6px_var(--cyan-hud)]"
               style={{
                 height: "100%",
-                animation: active ? `eq ${0.6 + (i % 4) * 0.16}s ease-in-out ${i * 0.06}s infinite` : "none",
+                animation: active
+                  ? `eq ${0.6 + (i % 4) * 0.16}s ease-in-out ${i * 0.06}s infinite`
+                  : "none",
                 transform: active ? undefined : "scaleY(0.22)",
                 transformOrigin: "bottom",
                 opacity: active ? 1 : 0.4,
