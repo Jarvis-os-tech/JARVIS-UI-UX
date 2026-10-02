@@ -18,13 +18,20 @@ interface PromptBarProps {
 }
 
 const SUGGESTIONS = [
+  {
+    label: "Delegate to Hermes",
+    prompt: "delegate to hermes: research zero-trust multi-agent consensus protocols",
+  },
+  {
+    label: "Delegate to Ultron",
+    prompt: "delegate to ultron: execute deep kernel diagnostic scan and inspect hardware thermals",
+  },
+  {
+    label: "Delegate to Prime",
+    prompt: "delegate to prime: implement autonomous Rust UDS socket channel with zero-copy",
+  },
   { label: "System Diagnostic", prompt: "Run complete system diagnostic across active nodes" },
   { label: "Status Report", prompt: "Summarize active agent status, memory, and telemetry" },
-  {
-    label: "Deploy Mission",
-    prompt: "Deploy autonomous mission to scan and index intelligence feeds",
-  },
-  { label: "Query Swarm", prompt: "Inspect agent swarm workloads and queued execution tasks" },
 ];
 
 export function PromptBar({

@@ -16,9 +16,13 @@ import {
   seedAgents,
   seedMissions,
   seedNotifications,
+  seedDelegatedTasks,
+  createDelegationCard,
   uid,
   type Agent,
   type ChatMessage,
+  type DelegatedTask,
+  type DelegatedOutputCard,
   type LogEntry,
   type Mission,
   type MissionStatus,
@@ -35,8 +39,9 @@ const JarvisContext = createContext<Ctx | null>(null);
 
 const VIEWS: ViewKey[] = [
   "dashboard",
-  "memory",
+  "agentspace",
   "agents",
+  "memory",
   "connectors",
   "mission",
   "workflows",
@@ -48,6 +53,8 @@ function useJarvisState() {
   const [agents, setAgents] = useState<Agent[]>(seedAgents);
   const [missions, setMissions] = useState<Mission[]>(seedMissions);
   const [notifications, setNotifications] = useState<Notification[]>(seedNotifications);
+  const [delegatedTasks, setDelegatedTasks] = useState<DelegatedTask[]>(seedDelegatedTasks);
+  const [activeOutputCard, setActiveOutputCard] = useState<DelegatedOutputCard | null>(null);
   const [log, setLog] = useState<LogEntry[]>([
     { id: uid(), text: "Orchestrator core online — 4 agents linked.", at: Date.now() - 600_000 },
     {
@@ -322,10 +329,185 @@ function useJarvisState() {
     [createMission, setAgentStatus, setMissionStatus],
   );
 
+  const openOutputCard = useCallback((card: DelegatedOutputCard) => {
+    setActiveOutputCard(card);
+  }, []);
+
+  const cancelDelegatedTask = useCallback((taskId: string) => {
+    setDelegatedTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: "failed" as const } : t)),
+    );
+    toast("Delegation halted by user");
+  }, []);
+
+  const delegateTask = useCallback(
+    async (targetAgentId: string, prompt: string, title?: string): Promise<DelegatedTask> => {
+      const cleanPrompt = prompt.trim();
+      const lowerTarget = targetAgentId.toLowerCase();
+      const targetAgent =
+        agents.find(
+          (a) =>
+            a.id.toLowerCase() === lowerTarget ||
+            a.name.toLowerCase().includes(lowerTarget) ||
+            (lowerTarget.includes("hermes") && a.id === "hermes") ||
+            (lowerTarget.includes("ultron") && a.id === "ultron") ||
+            ((lowerTarget.includes("prime") ||
+              lowerTarget.includes("coder") ||
+              lowerTarget.includes("software")) &&
+              a.id === "prime-agent") ||
+            ((lowerTarget.includes("manus") || lowerTarget.includes("browser")) &&
+              a.id === "openmanus") ||
+            (lowerTarget.includes("friday") && a.id === "friday"),
+        ) ||
+        agents[1] ||
+        agents[0];
+
+      const taskId = `del-${uid()}`;
+      const taskTitle =
+        title ||
+        `${targetAgent.name} ⟶ ${cleanPrompt.length > 45 ? cleanPrompt.slice(0, 42) + "..." : cleanPrompt}`;
+      const startedAt = Date.now();
+
+      const initialCard = createDelegationCard(targetAgent.id, cleanPrompt, taskId);
+
+      const newTask: DelegatedTask = {
+        id: taskId,
+        title: taskTitle,
+        agentId: targetAgent.id,
+        agentName: targetAgent.name,
+        prompt: cleanPrompt,
+        status: "running",
+        progress: 18,
+        startedAt,
+        displayCard: initialCard,
+      };
+
+      setDelegatedTasks((prev) => [newTask, ...prev]);
+
+      // POPUP NOTIFICATION 1: Delegation dispatched
+      toast(`⚡ J.A.R.V.I.S. ⟶ Delegated task to ${targetAgent.name}`, {
+        description: cleanPrompt.length > 70 ? cleanPrompt.slice(0, 68) + "..." : cleanPrompt,
+        duration: 4500,
+      });
+
+      pushNotification(
+        targetAgent.icon || "⚡",
+        `JARVIS delegated task to ${targetAgent.name}: "${taskTitle}"`,
+      );
+      pushLog(`Task delegation dispatched: J.A.R.V.I.S. ⟶ ${targetAgent.name} ("${cleanPrompt}")`);
+
+      // Progress step 1
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      setDelegatedTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, progress: 54 } : t)));
+
+      // Progress step 2
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      setDelegatedTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, progress: 88 } : t)));
+
+      // Progress step 3 (Completion)
+      await new Promise((resolve) => setTimeout(resolve, 550));
+      const completedAt = Date.now();
+      const durationMs = completedAt - startedAt;
+
+      const finalCard = createDelegationCard(targetAgent.id, cleanPrompt, taskId);
+      finalCard.telemetry.latencyMs = durationMs;
+
+      const completedTask: DelegatedTask = {
+        ...newTask,
+        status: "completed",
+        progress: 100,
+        completedAt,
+        durationMs,
+        displayCard: finalCard,
+      };
+
+      setDelegatedTasks((prev) => prev.map((t) => (t.id === taskId ? completedTask : t)));
+
+      setAgents((prev) =>
+        prev.map((a) =>
+          a.id === targetAgent.id
+            ? { ...a, tasks: a.tasks + 1, load: Math.min(94, a.load + 6) }
+            : a,
+        ),
+      );
+
+      // POPUP NOTIFICATION 2: Delegation completed with actionable Card view!
+      toast.success(`✅ Delegation Complete: ${targetAgent.name}`, {
+        description: `Finished: "${taskTitle}" — Click to inspect output card`,
+        action: {
+          label: "View Output Card",
+          onClick: () => {
+            setActiveOutputCard(finalCard);
+          },
+        },
+        duration: 9000,
+      });
+
+      pushNotification("✔", `Delegation completed by ${targetAgent.name}: "${taskTitle}"`);
+      pushLog(
+        `Delegation complete: ${targetAgent.name} finished in ${(durationMs / 1000).toFixed(1)}s`,
+      );
+
+      return completedTask;
+    },
+    [agents, pushLog, pushNotification],
+  );
+
   const sendDirective = useCallback(
     async (text: string): Promise<string> => {
       const clean = text.trim();
       if (!clean) return "";
+
+      const lower = clean.toLowerCase();
+      // Check for explicit delegation: "delegate to <agent>: <task>", "ask <agent> to <task>", "/delegate <agent> <task>"
+      const isDelegationIntent =
+        lower.startsWith("/delegate") ||
+        lower.startsWith("delegate to") ||
+        lower.startsWith("delegate task") ||
+        lower.startsWith("ask hermes") ||
+        lower.startsWith("ask ultron") ||
+        lower.startsWith("ask prime") ||
+        lower.startsWith("ask openmanus") ||
+        lower.includes("delegate to hermes") ||
+        lower.includes("delegate to ultron") ||
+        lower.includes("delegate to prime") ||
+        lower.includes("delegate to openmanus");
+
+      if (isDelegationIntent) {
+        let targetId = "hermes";
+        if (
+          lower.includes("ultron") ||
+          lower.includes("security") ||
+          lower.includes("diagnostic")
+        ) {
+          targetId = "ultron";
+        } else if (
+          lower.includes("prime") ||
+          lower.includes("code") ||
+          lower.includes("engineer")
+        ) {
+          targetId = "prime-agent";
+        } else if (
+          lower.includes("manus") ||
+          lower.includes("browser") ||
+          lower.includes("crawl")
+        ) {
+          targetId = "openmanus";
+        } else if (lower.includes("friday") || lower.includes("voice")) {
+          targetId = "friday";
+        }
+
+        let promptText = clean
+          .replace(/^\/delegate\s+/i, "")
+          .replace(/^delegate\s+to\s+[a-z-_.]+\s*[:—-]?\s*/i, "")
+          .replace(/^ask\s+[a-z-_.]+\s+to\s+/i, "")
+          .replace(/^delegate\s+task\s*[:—-]?\s*/i, "")
+          .trim();
+
+        if (!promptText) promptText = clean;
+
+        void delegateTask(targetId, promptText);
+      }
 
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -523,7 +705,7 @@ function useJarvisState() {
 
       return fullContent;
     },
-    [pushLog, pushNotification],
+    [pushLog, pushNotification, delegateTask],
   );
 
   const stopDirective = useCallback(() => {
@@ -642,6 +824,12 @@ function useJarvisState() {
     ram,
     net,
     clock,
+    delegatedTasks,
+    activeOutputCard,
+    setActiveOutputCard,
+    delegateTask,
+    cancelDelegatedTask,
+    openOutputCard,
   };
 }
 

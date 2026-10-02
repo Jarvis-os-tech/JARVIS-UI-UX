@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Activity, Bell, Gauge, Power, Settings2, X } from "lucide-react";
+import { Activity, Bell, Gauge, Network, Power, Settings2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { useJarvis, useNow } from "./JarvisProvider";
@@ -62,27 +62,6 @@ export function TopBar() {
     <header className="bezel relative z-50 flex h-[4.25rem] items-center justify-between gap-4 rounded-2xl px-4 sm:px-5">
       <div className="gloss pointer-events-none absolute inset-0 rounded-2xl" />
       <div className="flex min-w-0 items-center gap-3">
-        <span className="neu relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl">
-          <span className="absolute inset-1 animate-ping-ring rounded-xl border border-cyan-hud/40" />
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            className="h-6 w-6 drop-shadow-[0_0_8px_var(--cyan-hud)]"
-          >
-            <path
-              d="M12 2L2 8l10 6 10-6-10-6z"
-              stroke="var(--cyan-hud)"
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M2 16l10 6 10-6M2 12l10 6 10-6"
-              stroke="var(--cyan-hud)"
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
         <span className="min-w-0">
           <span className="font-display etched block truncate text-lg font-bold tracking-[0.3em] text-foreground">
             JARVIS
@@ -248,6 +227,16 @@ export function TopBar() {
             </div>
           </PopoverContent>
         </Popover>
+
+        <button
+          onClick={() => setView("agentspace")}
+          aria-label="Agent Space Mesh"
+          title="Agent Space: Visual Swarm Graph"
+          className="key hidden md:flex items-center gap-1.5 h-10 px-3 rounded-xl text-muted-foreground hover:text-cyan-hud transition-colors"
+        >
+          <Network className="h-4 w-4 text-cyan-hud" />
+          <span className="font-mono text-xs font-bold">Agent Space</span>
+        </button>
 
         <button
           onClick={() => setView("mission")}

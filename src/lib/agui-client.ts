@@ -29,6 +29,64 @@ function generateSimulatedResponse(
   const lower = directive.toLowerCase().trim();
 
   if (
+    lower.includes("delegate") ||
+    lower.startsWith("ask hermes") ||
+    lower.startsWith("ask ultron") ||
+    lower.startsWith("ask prime") ||
+    lower.startsWith("ask openmanus")
+  ) {
+    let targetName = "Hermes Intelligence";
+    let targetId = "hermes";
+    if (lower.includes("ultron") || lower.includes("security") || lower.includes("hardware")) {
+      targetName = "Ultron Sentinel";
+      targetId = "ultron";
+    } else if (lower.includes("prime") || lower.includes("code") || lower.includes("engineer")) {
+      targetName = "Prime Architect";
+      targetId = "prime-agent";
+    } else if (lower.includes("manus") || lower.includes("browser") || lower.includes("crawl")) {
+      targetName = "OpenManus Computer-Use";
+      targetId = "openmanus";
+    } else if (lower.includes("friday") || lower.includes("voice")) {
+      targetName = "F.R.I.D.A.Y. Co-Pilot";
+      targetId = "friday";
+    }
+
+    return {
+      thoughts: [
+        `Analyzing delegation parameters for ${targetName}`,
+        "Assessing node availability across sub-agent matrix",
+        "Binding parallel execution channel & telemetry listener",
+        "Dispatching task payload into specialist queue",
+      ],
+      toolCalls: [
+        {
+          tool: "delegate_task",
+          args: {
+            target_agent: targetId,
+            agent_name: targetName,
+            task: directive,
+            execution_mode: "async-parallel",
+          },
+          result: {
+            status: "DISPATCHED",
+            agent: targetName,
+            monitoring: "ACTIVE",
+            output_format: "card_type_view",
+          },
+        },
+      ],
+      textChunks: [
+        `Operational directive acknowledged, Sir.\n\n`,
+        `I have delegated this task to **${targetName}**.\n\n`,
+        `• **Target Agent:** \`${targetName}\`\n`,
+        `• **Execution Mode:** Background parallel processing\n`,
+        `• **Notification:** You will receive a start notification and completion popup with the full output card.\n\n`,
+        `You can monitor the live node connections and data flow at any time in **Agent Space**.`,
+      ],
+    };
+  }
+
+  if (
     lower.includes("mission") ||
     lower.includes("operation") ||
     lower.includes("deploy") ||

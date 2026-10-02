@@ -1,4 +1,5 @@
 import { ChatView } from "../ChatView";
+import { ParallelTaskDock } from "../ParallelTaskDock";
 import { useJarvis, useStats } from "../JarvisProvider";
 
 export function DashboardView() {
@@ -32,6 +33,9 @@ export function DashboardView() {
           ))}
         </div>
       </header>
+
+      {/* Parallel Background Delegation Dock */}
+      <ParallelTaskDock />
 
       <div className="glass flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-hairline bg-[oklch(0.22_0.013_256/_75%)] shadow-2xl">
         <ChatView

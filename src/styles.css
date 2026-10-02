@@ -436,6 +436,15 @@
   }
 }
 
+@keyframes wire-flow {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @utility animate-drift-a {
   animation: drift-a 28s ease-in-out infinite;
 }
@@ -462,6 +471,9 @@
 }
 @utility animate-eq {
   animation: eq 0.9s ease-in-out infinite;
+}
+@utility animate-wire-flow {
+  animation: wire-flow 1.2s linear infinite;
 }
 
 /* Sonner Toast Base & HUD Styling */

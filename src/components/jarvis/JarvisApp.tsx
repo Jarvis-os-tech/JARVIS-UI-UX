@@ -4,7 +4,9 @@ import { MissionRail } from "./MissionRail";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { VoiceOrbitModal } from "./VoiceOrbitModal";
+import { DelegationOutputModal } from "./DelegationOutputModal";
 import { AgentsView } from "./views/AgentsView";
+import { AgentSpaceView } from "./views/AgentSpaceView";
 import { ConnectorsView } from "./views/ConnectorsView";
 import { DashboardView } from "./views/DashboardView";
 import { MemoryView } from "./views/MemoryView";
@@ -15,6 +17,8 @@ import { WorkflowsView } from "./views/WorkflowsView";
 function Views() {
   const { view } = useJarvis();
   switch (view) {
+    case "agentspace":
+      return <AgentSpaceView />;
     case "agents":
       return <AgentsView />;
     case "mission":
@@ -45,6 +49,8 @@ function Shell() {
     voiceError,
     toggleVoiceMic,
     interruptVoiceSpeech,
+    activeOutputCard,
+    setActiveOutputCard,
   } = useJarvis();
 
   return (
@@ -70,6 +76,7 @@ function Shell() {
         onToggleMic={toggleVoiceMic}
         onInterruptSpeech={interruptVoiceSpeech}
       />
+      <DelegationOutputModal card={activeOutputCard} onClose={() => setActiveOutputCard(null)} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   Brain,
   LayoutDashboard,
   Mic,
+  Network,
   Plug,
   Settings2,
   Target,
@@ -16,8 +17,9 @@ import type { ViewKey } from "@/lib/jarvis-data";
 
 const items: { key: ViewKey; label: string; sub: string; Icon: typeof Boxes }[] = [
   { key: "dashboard", label: "Dashboard", sub: "Command Deck", Icon: LayoutDashboard },
-  { key: "memory", label: "Memory", sub: "Knowledge Hub", Icon: Brain },
+  { key: "agentspace", label: "Agent Space", sub: "Visual Swarm Mesh", Icon: Network },
   { key: "agents", label: "AI Agents", sub: "Live Swarm", Icon: Bot },
+  { key: "memory", label: "Memory", sub: "Knowledge Hub", Icon: Brain },
   { key: "connectors", label: "Connectors", sub: "Plugins & MCPs", Icon: Plug },
   { key: "mission", label: "Mission Control", sub: "Tasks & Ops", Icon: Target },
   { key: "workflows", label: "Workflow Forge", sub: "Design & Automate", Icon: Workflow },
@@ -28,6 +30,7 @@ export function Sidebar() {
   const {
     view,
     setView,
+    delegatedTasks,
     voiceListening,
     voiceThinking,
     voiceSpeaking,
@@ -61,12 +64,15 @@ export function Sidebar() {
                 active && "text-cyan-hud drop-shadow-[0_0_6px_var(--cyan-hud)]",
               )}
             />
-            <span className="hidden min-w-0 lg:block">
+            <span className="hidden min-w-0 lg:block flex-1">
               <span className="block truncate text-[13px] font-bold leading-tight">{label}</span>
               <span className="block truncate text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                 {sub}
               </span>
             </span>
+            {key === "agentspace" && delegatedTasks.some((t) => t.status === "running") && (
+              <span className="ml-auto hidden lg:inline-flex h-2 w-2 rounded-full bg-cyan-hud animate-ping" />
+            )}
             <span className="text-[13px] font-bold lg:hidden">{label}</span>
           </button>
         );
